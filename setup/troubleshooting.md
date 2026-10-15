@@ -9,8 +9,8 @@ Tell the assistant what you tried and exactly what you saw, leaving out password
 | `python3` not found (Windows) | Try `py -3`. Otherwise install Python from python.org with **Add python.exe to PATH** ticked, then restart the app |
 | The CV builder is missing (`python-docx`) | Ask: "Install the CV builder." The assistant creates a small private Python environment in `.nox-lite/.venv` and installs it there |
 | No PDF, only Word files | PDF needs LibreOffice (free, optional) from libreoffice.org. Or open the .docx in Word, Pages or Google Docs and save it as a PDF. Most forms accept .docx |
-| "Destination already exists" when creating the workspace | You already have one. Open that folder and say "Continue setting up" |
-| The assistant asks things you've already answered | Check the desktop app has the **Nox-Lite Workspace** folder open, not the downloaded toolkit |
+| "Destination already exists" when creating the workspace | This folder is already set up. Say "Continue setting up" |
+| The assistant asks things you've already answered | Check the desktop app has your Nox-Lite folder open (the one you set up, usually `Documents/nox-lite-main`), not a fresh download |
 | Skills don't appear | Start a new session in the workspace folder. Plain requests still work without them |
 | Chrome isn't available | See [Chrome setup](browser.md#if-something-goes-wrong) |
 | An upload appears but the form rejects it | Wait for the upload to finish and check the error message on the page. Codex needs **Allow access to file URLs** |

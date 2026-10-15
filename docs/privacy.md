@@ -1,6 +1,6 @@
 # Your information and connections
 
-Keep personal work in the private workspace created during setup, outside this toolkit and outside Git repositories. The initializer refuses an existing destination and Git ancestors. Its `.gitignore` is an extra guard, not encryption or a guarantee against uploads.
+Keep personal work in the private workspace created during setup, outside Git repositories. Setup turns the downloaded folder into that workspace and keeps the toolkit's own files in `.nox-lite/`. The initializer refuses Git repositories and any other existing folder. Its `.gitignore` is an extra guard, not encryption or a guarantee against uploads.
 
 Your assistant may send the files it reads to its AI provider as part of the conversation. “Local workspace” describes where the files are stored; it does not mean offline AI. Review the settings and policies of the provider you choose. A folder inside a cloud-synced Documents directory may also be backed up by that service; choose a different location if that is not what you want.
 

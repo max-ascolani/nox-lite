@@ -43,6 +43,6 @@ A manifest detects changed files; it cannot prove that a human really approved t
 
 ## Updating a personal workspace
 
-Your workspace contains a snapshot so it still works if you move or delete the downloaded toolkit. Version 0.1 does not silently update it. When upgrading, ask your assistant to compare versions, back up the workspace privately, review changed instructions, replace only `.nox-lite/` and regenerate provider wrappers. Keep `workspace.json`, `setup-state.json`, profile, research, tracker and application history. Never rerun initialization over an existing workspace or reset your profile from blank templates.
+Setup turns the downloaded folder into your workspace: the toolkit moves into `.nox-lite/` as a snapshot, and your personal folders sit beside it. Version 0.1 does not silently update it. When upgrading, ask your assistant to compare versions, back up the workspace privately, review changed instructions, replace only `.nox-lite/` and regenerate provider wrappers. Keep `workspace.json`, `setup-state.json`, profile, research, tracker and application history. Never rerun initialization over an existing workspace or reset your profile from blank templates.
 
 The code and [test suite](../tests/README.md) are intentionally small enough to inspect. Provider setup details include official sources and a last-checked date because tools and subscription entitlements can change.

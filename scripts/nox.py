@@ -163,29 +163,46 @@ def local_tracker(root, config):
     return inside(root, config["tracker"]["path"])
 
 
+TOOLKIT_FOLDERS = ("workflows", "setup", "docs", "templates", "sources", "scripts", "skills", "examples", "tests")
+TOOLKIT_FILES = ("VERSION", "LICENSE", "requirements-docs.txt", "START_HERE.md", "README.md", "CLAUDE.md", "CONTRIBUTING.md")
+
+
 def initialise(destination, provider):
+    """Create a private workspace. Pointed at the downloaded toolkit folder itself (or at a folder holding
+    only it, as Windows' Extract All makes), convert that folder in place so setup continues in the same chat."""
     if provider not in {"codex", "claude", "both"}:
         raise ValueError("Choose codex, claude or both")
+    import sync_skills  # before an in-place conversion removes scripts/
     dest = Path(destination).expanduser().resolve()
-    if dest.exists():
-        raise ValueError("Destination already exists. Use doctor/resume; initialization never overwrites a folder.")
-    if dest == ROOT or dest.is_relative_to(ROOT):
-        raise ValueError("Choose a private folder outside the toolkit")
+    in_place = dest == ROOT or (dest == ROOT.parent and
+                                {p.name for p in dest.iterdir()} - {".DS_Store", "desktop.ini"} == {ROOT.name})
+    if not in_place:
+        if dest.exists():
+            raise ValueError("Destination already exists. Use doctor/resume; initialization never overwrites a folder.")
+        if dest.is_relative_to(ROOT):
+            raise ValueError("Choose a private folder outside the toolkit")
     if any((p / ".git").exists() for p in [dest, *dest.parents]):
         raise ValueError("Choose a private folder outside any Git repository")
-    dest.mkdir(parents=True, mode=0o700)
+    if in_place:
+        dest.chmod(0o700)
+    else:
+        dest.mkdir(parents=True, mode=0o700)
     # An explicit allowlist prevents accidental copies of checkout data or author credentials.
     toolkit = dest / ".nox-lite"
     toolkit.mkdir()
-    for folder in ("workflows", "setup", "docs", "templates", "sources", "scripts", "skills", "examples", "tests"):
+    for folder in TOOLKIT_FOLDERS:
         # "plans" keeps maintainers' docs/plans out of private workspaces.
         shutil.copytree(ROOT / folder, toolkit / folder,
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store", "plans"))
-    for name in ("VERSION", "LICENSE", "requirements-docs.txt", "START_HERE.md", "README.md", "CLAUDE.md", "CONTRIBUTING.md"):
+    for name in TOOLKIT_FILES:
         shutil.copy2(ROOT / name, toolkit / name)
-    shutil.copytree(ROOT / "templates/workspace", dest, dirs_exist_ok=True)
+    # Rewrite the toolkit introduction for its installed location, retaining all operating rules.
+    instructions = (ROOT / "AGENTS.md").read_text()
+    instructions = instructions.replace("If `workspace.json` is absent", "At the workspace root, if `workspace.json` is absent")
+    atomic_text(toolkit / "AGENTS.md", instructions)
+    shutil.copytree(toolkit / "templates/workspace", dest, dirs_exist_ok=True)
     config = read_json(dest / "workspace.json")
-    config.update(provider=provider, created_at=now(), toolkit_version=(ROOT / "VERSION").read_text().strip())
+    config.update(provider=provider, created_at=now(), toolkit_version=(toolkit / "VERSION").read_text().strip())
     write_json(dest / "workspace.json", config)
     write_json(dest / "setup-state.json", {"schema_version": 1, "checks": {}, "next_step": "Import a CV or career notes and confirm the basics."})
     for folder in ("inbox", "evidence", "applications", "research", "tracker", ".runtime"):
@@ -199,16 +216,30 @@ def initialise(destination, provider):
                 "Paths in those procedures such as `profile/` and `applications/` refer to THIS workspace root, not `.nox-lite/`. "
                 "Use only the tracker chosen in `workspace.json`.\n\n"
                 "Start with `.nox-lite/workflows/setup.md` if setup is incomplete. Ordinary requests select the relevant installed skill.\n")
-    shutil.copy2(ROOT / "AGENTS.md", toolkit / "AGENTS.md")
-    # Rewrite the toolkit introduction for its installed location, retaining all operating rules.
-    instructions = (toolkit / "AGENTS.md").read_text()
-    instructions = instructions.replace("If `workspace.json` is absent", "At the workspace root, if `workspace.json` is absent")
-    atomic_text(toolkit / "AGENTS.md", instructions)
     # Claude Code expands @imports, so both instruction files load without a separate read.
     atomic_text(dest / "CLAUDE.md", "\n".join(["# My Nox-Lite workspace", "", "@AGENTS.md", "@.nox-lite/AGENTS.md", ""]))
-    from sync_skills import generate
-    generate(dest, installed=True, provider=provider)
-    return {"workspace": str(dest), "next": "Open this folder in your agent and say: Continue setting up."}
+    leftovers = []
+    if in_place:
+        # The snapshot in .nox-lite/ is complete, so remove the downloaded originals from the open folder.
+        # AGENTS.md, CLAUDE.md and .gitignore at the root are already the workspace's own.
+        names = [*TOOLKIT_FOLDERS, *(n for n in TOOLKIT_FILES if n != "CLAUDE.md"), ".agents", ".claude"]
+        originals = [ROOT] if ROOT != dest else [dest / name for name in names]
+        for path in originals:
+            if path.is_dir():
+                shutil.rmtree(path, ignore_errors=True)
+            elif path.exists():
+                try:
+                    path.unlink()
+                except OSError:
+                    pass
+            if path.exists():
+                leftovers.append(path.name)
+    sync_skills.generate(dest, installed=True, provider=provider, source=toolkit)
+    result = {"workspace": str(dest), "next": "Carry on setting up here." if in_place else
+              "Open this folder in your agent and say: Continue setting up."}
+    if leftovers:
+        result["leftovers"] = leftovers
+    return result
 
 
 def has_docx(python):

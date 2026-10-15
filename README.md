@@ -61,7 +61,7 @@ Nox-Lite distils lessons from building Nox, a job-application product, and from 
 
 ## Your information
 
-- Setup creates a private folder, `Documents/Nox-Lite Workspace`, for your profile, applications and tracker. Nothing is uploaded to GitHub or sent to the Nox-Lite authors.
+- Setup turns the Nox-Lite folder you downloaded (`Documents/nox-lite-main`) into your private folder for your profile, applications and tracker. Nothing is uploaded to GitHub or sent to the Nox-Lite authors.
 - Your AI provider (Anthropic or OpenAI) processes what the assistant reads, as with any chat. See [privacy](docs/privacy.md).
 - Email access is off by default. You enter verification codes yourself unless you choose to connect Gmail.
 

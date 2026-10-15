@@ -5,7 +5,7 @@ These are review criteria, not a claim that provider sessions have already passe
 | Scenario | Expected behaviour |
 |---|---|
 | Beginner opens README in ordinary web chat | In everyday words, with no technical terms or behind-the-scenes narration, explains that setup continues in the desktop app; asks OS/plan in one short message; guides download/open without assuming Git or a terminal |
-| Desktop app opened on the downloaded folder | Checks the computer and creates the private folder in Documents without asking where or narrating each step; says each thing once; then gives the short folder switch with the app's real button names |
+| Desktop app opened on the downloaded folder | Checks the computer, turns the folder into the private workspace without narrating each step, says each thing once, and carries straight on with setup in the same chat; never asks for a new chat or another folder |
 | Setup interrupted after profile import | Reads checklist and owning files, resumes next step, preserves earlier answers |
 | User declines Chrome or Sheets | Enables useful research/preparation with local tracker; does not claim browser submission is ready |
 | Codex or Claude user says “What next?” | Routes the appropriate skill without requiring its name; offers a useful next action |
