@@ -15,6 +15,8 @@ Keep it short. If they seem overwhelmed, suggest one small step, like reviewing 
 
 Common ways in: "What can you help with?", "Continue", "What needs my attention?", "I'm stuck", "I found a job".
 
+Once a week (when `update_checked_at` in `workspace.json` is missing or more than seven days old), also run the [update](update.md) check. If there's a newer version, add one line offering it. If the check fails, say nothing about it.
+
 ## Pause or stop
 
 - **"Pause my search":** set `search.active` to false in `workspace.json`, and pause any real schedule in the app (see [schedule](schedule.md)). Check it's actually paused there; the local setting alone doesn't stop the app.

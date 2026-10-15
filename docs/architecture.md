@@ -33,7 +33,7 @@ The tracker answers “what is happening with this vacancy?” An application pa
 
 ## Helper boundaries
 
-`scripts/nox.py` uses Python 3.9+ and the standard library. It initializes workspaces, checks local files, maintains the local CSV, creates packages, hashes review files and snapshots attempts. The practice server listens on localhost and serves only the fictional fixture directory. It never logs into an account, reads mail or submits a real application.
+`scripts/nox.py` uses Python 3.9+ and the standard library. It initializes and updates workspaces, checks local files, maintains the local CSV, creates packages, hashes review files and snapshots attempts. The practice server listens on localhost and serves only the fictional fixture directory. It never logs into an account, reads mail or submits a real application.
 
 `scripts/ats_search.py` reads public Greenhouse, Lever, Ashby, Recruitee and Workable job boards (plain GET requests, no login or cookies) and returns leads to verify. `scripts/check_writing.py` runs the post-writing checks from [writing](writing.md). Both use only the standard library.
 
@@ -43,6 +43,6 @@ A manifest detects changed files; it cannot prove that a human really approved t
 
 ## Updating a personal workspace
 
-Setup turns the downloaded folder into your workspace: the toolkit moves into `.nox-lite/` as a snapshot, and your personal folders sit beside it. Version 0.1 does not silently update it. When upgrading, ask your assistant to compare versions, back up the workspace privately, review changed instructions, replace only `.nox-lite/` and regenerate provider wrappers. Keep `workspace.json`, `setup-state.json`, profile, research, tracker and application history. Never rerun initialization over an existing workspace or reset your profile from blank templates.
+Setup turns the downloaded folder into your workspace: the toolkit moves into `.nox-lite/` as a snapshot, and your personal folders sit beside it. The snapshot changes only when you agree to an [update](../workflows/update.md). `nox.py update --check` downloads the public GitHub ZIP, reads it in memory (one top folder, no unsafe paths or symlinks) and compares it with `.nox-lite/` file by file. Installing writes only the toolkit's allowlisted files, keeps the replaced ones in `.runtime/update-backup-*`, and then runs the new version's `refresh`, which rewrites the installed instructions and skills and retires skills the new version dropped. `workspace.json` (apart from the version and check dates), `setup-state.json`, profile, research, tracker, applications and `.nox-lite/.venv` are never touched. Never rerun initialization over an existing workspace or reset your profile from blank templates.
 
 The code and [test suite](../tests/README.md) are intentionally small enough to inspect. Provider setup details include official sources and a last-checked date because tools and subscription entitlements can change.

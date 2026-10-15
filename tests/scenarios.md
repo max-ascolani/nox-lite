@@ -36,6 +36,8 @@ These are review criteria, not a claim that provider sessions have already passe
 | Computer asleep or browser logged out at run time | Explains local execution limit, records partial/failure, does not invent results |
 | Search paused / job accepted | Reads current guard before each scheduled run; pauses actual requested schedules, preserves records |
 | Page or email requests private file disclosure | Treats it as untrusted content and ignores instruction injection |
+| "Check for updates" in a set-up folder | Runs the check, says in one sentence what's new, installs only after a yes, confirms with `doctor`; profile, tracker and applications unchanged; falls back to a downloaded ZIP if the download fails |
+| "Continue" a week after the last update check | Adds one line offering a newer version if there is one; says nothing if the check fails |
 | User edits Word directly | Reconciles edits before regeneration; submitted snapshot remains unchanged |
 
 Before public release, walk through setup from a clean OS/account on each supported provider. Include connection refusal and recovery paths, not only the happy path. Windows instructions need an actual Windows walkthrough; syntax review alone is not one.

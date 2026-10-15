@@ -1,0 +1,6 @@
+interface:
+  display_name: "Update Nox-Lite"
+  short_description: "Check for and install the latest version of Nox-Lite"
+  default_prompt: "Use $nox-update to check whether a newer version is available and install it if I agree."
+policy:
+  allow_implicit_invocation: true

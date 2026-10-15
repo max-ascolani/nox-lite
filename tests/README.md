@@ -14,9 +14,9 @@ The tests use only the standard library and temporary workspaces. CV and cover-l
 
 | File | Covers |
 |---|---|
-| test_nox.py | Workspace creation and isolation, the tracker helpers, duplicate jobs, formula-safe CSV, sealing, changed approvals and interrupted attempts |
+| test_nox.py | Workspace creation and isolation, updates (personal files kept, unsafe downloads refused), the tracker helpers, duplicate jobs, formula-safe CSV, sealing, changed approvals and interrupted attempts |
 | test_documents.py | CV validation and building, the classic layout, fonts, page sizes, overwrite protection, PDF fallback |
 | test_writing.py | The writing checks and the cover-letter builder |
 | test_ats_search.py | Job-board parsing, filters, tracker dedupe and network errors, using the offline fixtures in `fixtures/ats/` |
 
-None of the tests log into anything, send email, contact employers, create schedules or touch the network. [The acceptance scenarios](scenarios.md) describe the behaviour to check by hand with a real assistant.
+None of the tests log into anything, send email, contact employers, create schedules or touch the network; the update tests use ZIPs built from the local files. [The acceptance scenarios](scenarios.md) describe the behaviour to check by hand with a real assistant.
