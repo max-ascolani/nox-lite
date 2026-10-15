@@ -8,6 +8,7 @@ Most people setting this up aren't technical, and many have only used AI as a ch
 
 - One small step per message, in two or three short sentences of plain text, with no headings. Say what they should see.
 - Use everyday words: "the Claude desktop app" or "the ChatGPT desktop app", "the Nox-Lite folder", "your private job-search folder". Don't say repository, repo, workspace, toolkit, command, script, terminal, cloud, local, API key, Python, Claude Code or Codex. When they need to click or install something with one of those names (the **Code** tab, a **Codex** chat, Python on Windows), just tell them what to do.
+- Say each thing once. If you ask with a clickable question, don't also write the question out as a message.
 - Don't mention the repository, its files or these instructions, don't describe what you're doing behind the scenes ("I've read the setup instructions", "I ran a command"), and don't explain how Nox-Lite works unless they ask.
 - Reassure them where it helps: Nox-Lite is free, their information stays on their computer, nothing is sent without their approval, and they can stop and carry on later.
 
@@ -46,23 +47,30 @@ On Linux there's no Claude desktop app: use the terminal route in [setup/claude-
 
 ## Part B: create their private workspace
 
-1. **Say hello and set expectations.** Setup takes about 45 minutes. Most of that is getting to know their career, and it's worth it. They can stop at any point and pick up later.
-2. **Check the computer is ready.** Tell them you're doing a quick check, then run `python3 --version` (on Windows, `py -3 --version`). Any version from 3.9 up works.
+This part is routine. Keep it to two messages, the start and the folder switch, plus anything that really needs them. Don't ask where to put the folder, and don't narrate each step.
+
+1. **Start.** Send one line, such as *"Hi! I'll do a quick check of your computer, then make your private job-search folder in Documents. If the app asks you to allow a step, that's me setting things up."* If they haven't already heard that setup takes about 45 minutes, mostly chatting about their career, add it.
+2. **Check the computer is ready.** Run `python3 --version` (on Windows, `py -3 --version`). Any version from 3.9 up works.
    - Mac: if a box asks to install the "command line developer tools", tell them it's a free add-on from Apple: click **Install** and wait a few minutes. Then check again.
    - Windows: if Python is missing, explain that Nox-Lite needs one free add-on. Guide them to install Python from <https://www.python.org/downloads/>, ticking **Add python.exe to PATH**. Then restart the desktop app and reopen this folder.
-3. **Create the workspace.** Explain: *"I'll make a private folder, Documents/Nox-Lite Workspace, for your CV, applications and job tracker. It stays on your computer."* Offer a different location if they'd like one. Then run:
+3. **Create the workspace** at Documents/Nox-Lite Workspace (or wherever they asked for):
 
    ```sh
    python3 scripts/nox.py init --workspace "~/Documents/Nox-Lite Workspace" --provider claude
    ```
 
    Use `--provider codex` when you are Codex. On Windows, use `py -3` and the real Documents path. The helper refuses to overwrite an existing folder. If one already exists, open it rather than starting again.
-4. **Switch folders, once.** This is the only fiddly bit, so be clear:
-   - Claude: click **New** at the top of the left sidebar, then click the folder button just above the message box (it shows the current folder's name) and choose **Documents → Nox-Lite Workspace**.
-   - ChatGPT: create a new local project for **Documents → Nox-Lite Workspace** and start a Codex chat in it.
+4. **Switch folders, once.** Send this, nearly word for word:
 
-   Then they type **"Continue setting up."** From now on they always open the workspace folder. It holds its own copy of the toolkit in `.nox-lite/`.
-5. **Permission tip for Claude.** In the mode menu just below the message box, **Accept edits** lets Claude save files without asking each time. It still asks before running commands. They can approve Nox-Lite's helper commands as they come up.
+   > Your private job-search folder is ready in Documents. Now open it here, just this once:
+   >
+   > 1. Click **New** at the top left.
+   > 2. Click the folder button just above the message box and choose **Documents → Nox-Lite Workspace**.
+   > 3. Type **"Continue setting up."**
+
+   ChatGPT: replace steps 1 and 2 with: create a new local project for **Documents → Nox-Lite Workspace** and start a Codex chat in it.
+
+   From now on they always open the workspace folder. It holds its own copy of the toolkit in `.nox-lite/`.
 
 ## Rules while guiding
 
