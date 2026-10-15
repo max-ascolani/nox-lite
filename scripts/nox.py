@@ -208,7 +208,7 @@ def initialise(destination, provider):
     atomic_text(dest / "CLAUDE.md", "\n".join(["# My Nox-Lite workspace", "", "@AGENTS.md", "@.nox-lite/AGENTS.md", ""]))
     from sync_skills import generate
     generate(dest, installed=True, provider=provider)
-    return {"workspace": str(dest), "next": "Open this folder in your agent and say: Help me finish setting up."}
+    return {"workspace": str(dest), "next": "Open this folder in your agent and say: Continue setting up."}
 
 
 def has_docx(python):
