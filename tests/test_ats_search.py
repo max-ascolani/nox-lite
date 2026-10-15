@@ -408,6 +408,13 @@ class FindBoardsTests(unittest.TestCase):
             self.assertEqual(ats_search.add_boards(path, results), 0)
             self.assertEqual(ats_search.read_companies(path), ["https://job-boards.greenhouse.io/ExampleLabs", "lever:sampleco"])
 
+    def test_add_boards_labels_with_board_name(self):
+        results, _ = self.find(["workable:mockhouse"])
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "companies.txt"
+            ats_search.add_boards(path, results)
+            self.assertEqual(path.read_text(encoding="utf-8"), "workable:mockhouse  # Mockhouse Ltd\n")
+
     def test_command_line(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "companies.txt"

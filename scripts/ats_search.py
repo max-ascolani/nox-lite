@@ -428,7 +428,7 @@ def add_boards(path, results):
             key = (ats, slug.lower())
             if not b["check"] and key not in known:
                 known.add(key)
-                lines.append(f"{b['board']}  # {result['company'].replace('#', '')}")
+                lines.append(f"{b['board']}  # {(b.get('name') or result['company']).replace('#', '')}")
     if lines:
         atomic_text(path, existing + ("\n" if existing and not existing.endswith("\n") else "") + "\n".join(lines) + "\n")
     return len(lines)
