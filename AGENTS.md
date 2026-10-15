@@ -22,6 +22,7 @@ Users don't need to name a skill. Match their request, then read that procedure 
 | prepare for an interview | [interview](workflows/interview.md) |
 | check application emails | [email](workflows/email.md) |
 | run a search on a schedule | [schedule](workflows/schedule.md) |
+| check for or install a Nox-Lite update | [update](workflows/update.md) |
 
 When several jobs are involved, also follow [batch coordination](workflows/batch-applications.md). Bulk is the normal way to work, so suggest it: find 20–25, choose a batch, prepare them all, review once, approve once.
 

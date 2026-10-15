@@ -8,6 +8,7 @@ import csv
 from datetime import datetime, timezone
 import hashlib
 import http.server
+import io
 import json
 import os
 from pathlib import Path
@@ -17,7 +18,9 @@ import subprocess
 import sys
 import tempfile
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.request import Request, urlopen
 import uuid
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 FIELDS = ["job_id", "company", "role", "url", "location", "salary", "fit", "decision",
@@ -41,12 +44,16 @@ def read_json(path):
 
 
 def atomic_text(path, text):
+    atomic_bytes(path, text.encode("utf-8"))
+
+
+def atomic_bytes(path, data):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(prefix=".nox-", dir=path.parent)
     try:
-        with os.fdopen(fd, "w", encoding="utf-8", newline="") as handle:
-            handle.write(text)
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
         os.replace(temporary, path)
     finally:
         if os.path.exists(temporary):
@@ -165,6 +172,12 @@ def local_tracker(root, config):
 
 TOOLKIT_FOLDERS = ("workflows", "setup", "docs", "templates", "sources", "scripts", "skills", "examples", "tests")
 TOOLKIT_FILES = ("VERSION", "LICENSE", "requirements-docs.txt", "START_HERE.md", "README.md", "CLAUDE.md", "CONTRIBUTING.md")
+UPDATE_URL = "https://github.com/max-ascolani/nox-lite/archive/refs/heads/main.zip"
+
+
+def installed_agents(text):
+    """The toolkit introduction rewritten for its installed location, retaining all operating rules. Idempotent."""
+    return text.replace("If `workspace.json` is absent", "At the workspace root, if `workspace.json` is absent")
 
 
 def initialise(destination, provider):
@@ -196,10 +209,7 @@ def initialise(destination, provider):
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store", "plans"))
     for name in TOOLKIT_FILES:
         shutil.copy2(ROOT / name, toolkit / name)
-    # Rewrite the toolkit introduction for its installed location, retaining all operating rules.
-    instructions = (ROOT / "AGENTS.md").read_text()
-    instructions = instructions.replace("If `workspace.json` is absent", "At the workspace root, if `workspace.json` is absent")
-    atomic_text(toolkit / "AGENTS.md", instructions)
+    atomic_text(toolkit / "AGENTS.md", installed_agents((ROOT / "AGENTS.md").read_text(encoding="utf-8")))
     shutil.copytree(toolkit / "templates/workspace", dest, dirs_exist_ok=True)
     config = read_json(dest / "workspace.json")
     config.update(provider=provider, created_at=now(), toolkit_version=(toolkit / "VERSION").read_text().strip())
@@ -240,6 +250,119 @@ def initialise(destination, provider):
     if leftovers:
         result["leftovers"] = leftovers
     return result
+
+
+def toolkit_path(relative):
+    """Whether a toolkit-relative path (a/b.md) belongs in a workspace's .nox-lite/ snapshot."""
+    parts = relative.split("/")
+    if any(part in {"__pycache__", ".DS_Store", "plans"} for part in parts) or relative.endswith(".pyc"):
+        return False
+    return relative in TOOLKIT_FILES or relative == "AGENTS.md" or (len(parts) > 1 and parts[0] in TOOLKIT_FOLDERS)
+
+
+def download(url=UPDATE_URL, limit=20_000_000):
+    try:
+        with urlopen(Request(url, headers={"User-Agent": "Nox-Lite updater"}), timeout=30) as response:
+            data = response.read(limit + 1)
+    except OSError as exc:  # includes timeouts and certificate errors
+        raise ValueError(f"Couldn't download the latest version ({exc}). Download {url} another way "
+                         "and run the update again with --zip and the file's path.")
+    if len(data) > limit:
+        raise ValueError("The download is unexpectedly large, so it was not installed.")
+    return data
+
+
+def read_release(data, limit=50_000_000):
+    """Toolkit files from a GitHub ZIP, keyed by toolkit-relative path. Nothing is extracted to disk."""
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(data))
+    except zipfile.BadZipFile:
+        raise ValueError("That file isn't a Nox-Lite download (not a ZIP).")
+    files, tops, total = {}, set(), 0
+    for info in archive.infolist():
+        parts = info.filename.rstrip("/").split("/")
+        if "\\" in info.filename or ":" in info.filename or any(part in {"", ".", ".."} for part in parts):
+            raise ValueError(f"Unsafe path in the download: {info.filename!r}. Nothing was installed.")
+        tops.add(parts[0])
+        if len(tops) > 1:
+            raise ValueError("The download should hold one Nox-Lite folder. Nothing was installed.")
+        relative = "/".join(parts[1:])
+        if info.is_dir() or (info.external_attr >> 16) & 0o170000 == 0o120000 or not toolkit_path(relative):
+            continue  # folders, symlinks and files a workspace doesn't use
+        total += info.file_size
+        if total > limit:
+            raise ValueError("The download is unexpectedly large, so it was not installed.")
+        files[relative] = archive.read(info)
+    if any(name not in files for name in ("VERSION", "AGENTS.md", "scripts/nox.py", "workflows/setup.md")):
+        raise ValueError("That download doesn't look like Nox-Lite. Nothing was installed.")
+    files["AGENTS.md"] = installed_agents(files["AGENTS.md"].decode("utf-8")).encode("utf-8")
+    return files
+
+
+def update(path, check=False, zip_path=None):
+    """Compare .nox-lite/ with the latest public release and, unless checking, replace only toolkit files."""
+    root, config = workspace(path)
+    toolkit = root / ".nox-lite"
+    release = read_release(Path(zip_path).expanduser().read_bytes() if zip_path else download())
+    installed = {}
+    for folder in TOOLKIT_FOLDERS:
+        for file in (toolkit / folder).rglob("*"):
+            relative = file.relative_to(toolkit).as_posix()
+            if file.is_file() and not file.is_symlink() and toolkit_path(relative):
+                installed[relative] = file
+    for name in (*TOOLKIT_FILES, "AGENTS.md"):
+        if (toolkit / name).is_file():
+            installed[name] = toolkit / name
+    added = sorted(set(release) - set(installed))
+    removed = sorted(set(installed) - set(release))
+    changed = sorted(r for r in set(release) & set(installed) if installed[r].read_bytes() != release[r])
+    version = (toolkit / "VERSION").read_text(encoding="utf-8").strip() if (toolkit / "VERSION").is_file() else "unknown"
+    result = {"installed_version": version, "latest_version": release["VERSION"].decode("utf-8").strip(),
+              "update_available": bool(added or removed or changed), "changed": changed, "added": added, "removed": removed}
+    config["update_checked_at"] = now()
+    write_json(root / "workspace.json", config)
+    if check or not result["update_available"]:
+        return result
+    # Keep the replaced toolkit files, so a bad update can be undone. Personal files and .venv are never touched.
+    backup = root / ".runtime" / ("update-backup-" + datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S"))
+    for relative in changed + removed:
+        target = backup / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(installed[relative], target)
+    for relative in changed + added:
+        atomic_bytes(inside(toolkit, relative), release[relative])
+    for relative in removed:
+        installed[relative].unlink()
+        folder = installed[relative].parent
+        while folder != toolkit and not any(folder.iterdir()):
+            folder.rmdir()
+            folder = folder.parent
+    # The new nox.py finishes the job, so instructions and skills follow the version just installed.
+    refreshed = subprocess.run([sys.executable, str(toolkit / "scripts/nox.py"), "refresh", "--workspace", str(root)],
+                               capture_output=True, text=True, timeout=300)
+    if refreshed.returncode:
+        raise ValueError(f"Files updated, but refreshing skills failed: {refreshed.stderr.strip()} "
+                         f"Old files are in {backup.relative_to(root)}.")
+    return {**result, "updated": True, "backup": str(backup.relative_to(root)), **json.loads(refreshed.stdout)}
+
+
+def refresh(path):
+    """After an update: installed instructions, skill wrappers (dropping retired ones) and the recorded version."""
+    import sync_skills
+    root, config = workspace(path)
+    toolkit = root / ".nox-lite"
+    agents = toolkit / "AGENTS.md"
+    atomic_text(agents, installed_agents(agents.read_text(encoding="utf-8")))
+    names = {skill["name"] for skill in read_json(toolkit / "skills/catalog.json")}
+    retired = []
+    for folder in sorted([*root.glob(".agents/skills/nox-*"), *root.glob(".claude/skills/nox-*")]):
+        if folder.name not in names and (folder / "SKILL.md").is_file():
+            shutil.rmtree(folder)
+            retired.append(folder.relative_to(root).as_posix())
+    skills = sync_skills.generate(root, installed=True, provider=config.get("provider", "both"), source=toolkit)
+    config.update(toolkit_version=(toolkit / "VERSION").read_text(encoding="utf-8").strip(), toolkit_updated_at=now())
+    write_json(root / "workspace.json", config)
+    return {"toolkit_version": config["toolkit_version"], "skills_written": len(skills), "skills_retired": retired}
 
 
 def has_docx(python):
@@ -578,6 +701,10 @@ def main():
     for command in ("seal", "check-package", "attempt"):
         p = sub.add_parser(command); p.add_argument("package")
     p = sub.add_parser("practice"); p.add_argument("--port", type=int, default=8765)
+    p = sub.add_parser("update", help="Check for or install the latest Nox-Lite; personal files are never touched")
+    p.add_argument("--workspace", required=True); p.add_argument("--check", action="store_true", help="Only report")
+    p.add_argument("--zip", help="Use an already-downloaded ZIP of the GitHub repository")
+    p = sub.add_parser("refresh", help="Regenerate installed instructions and skills (run by update)"); p.add_argument("--workspace", required=True)
     args = parser.parse_args()
     try:
         if args.command == "init": result = initialise(args.workspace, args.provider)
@@ -590,6 +717,8 @@ def main():
         elif args.command == "seal": result = seal(args.package)
         elif args.command == "check-package": result = check_package(args.package)
         elif args.command == "attempt": result = create_attempt(args.package)
+        elif args.command == "update": result = update(args.workspace, args.check, args.zip)
+        elif args.command == "refresh": result = refresh(args.workspace)
         elif args.command == "practice":
             from functools import partial
             handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(ROOT / "examples/practice"))

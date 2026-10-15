@@ -46,6 +46,7 @@ Talk to it like a person. For example:
 | "I've got an interview with Acme on Thursday" | Researches the company and rehearses with you |
 | "Search every weekday at 9am" | Sets up a daily search (the desktop app needs to be open) |
 | "What should I do next?" | Picks the most useful next step |
+| "Check for updates" | Gets the latest Nox-Lite if you agree, without touching your information. It also checks about once a week by itself |
 
 **Work in batches.** A good rhythm is one search a day, then reviewing 10–20 tailored applications in one sitting and approving them with one message. Your time goes on deciding, not on copying and pasting. See the [batch walkthrough](docs/batch-applications.md).
 
@@ -63,6 +64,7 @@ Nox-Lite distils lessons from building Nox, a job-application product, and from 
 
 - Setup turns the Nox-Lite folder you downloaded (`Documents/nox-lite-main`) into your private folder for your profile, applications and tracker. Nothing is uploaded to GitHub or sent to the Nox-Lite authors.
 - Your AI provider (Anthropic or OpenAI) processes what the assistant reads, as with any chat. See [privacy](docs/privacy.md).
+- Checking for updates downloads Nox-Lite's public files from GitHub and sends nothing about you.
 - Email access is off by default. You enter verification codes yourself unless you choose to connect Gmail.
 
 ## Limits

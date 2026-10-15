@@ -2,6 +2,8 @@
 
 Keep personal work in the private workspace created during setup, outside Git repositories. Setup turns the downloaded folder into that workspace and keeps the toolkit's own files in `.nox-lite/`. The initializer refuses Git repositories and any other existing folder. Its `.gitignore` is an extra guard, not encryption or a guarantee against uploads.
 
+About once a week, when you ask what to do next, your assistant checks GitHub for a newer version of Nox-Lite. The check downloads the public files, as opening the GitHub page would, and sends nothing from your folder. An update installs only when you agree, and it replaces only `.nox-lite/`.
+
 Your assistant may send the files it reads to its AI provider as part of the conversation. “Local workspace” describes where the files are stored; it does not mean offline AI. Review the settings and policies of the provider you choose. A folder inside a cloud-synced Documents directory may also be backed up by that service; choose a different location if that is not what you want.
 
 ## Collect useful context, with limits

@@ -1,6 +1,7 @@
 """Meaningful state/identity/recovery checks; no external account access."""
 import concurrent.futures
 import copy
+import io
 import json
 from pathlib import Path
 import shutil
@@ -9,10 +10,13 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import nox
 import sync_skills
+
+SKILLS = len(json.loads((nox.ROOT / "skills/catalog.json").read_text()))
 
 
 class WorkspaceTests(unittest.TestCase):
@@ -48,7 +52,7 @@ class WorkspaceTests(unittest.TestCase):
         for path in self.root.glob(".*/skills/*/SKILL.md"):
             target = re.search(r"\[the shared procedure\]\(([^)]+)\)", path.read_text()).group(1)
             self.assertTrue((path.parent / target).resolve().is_file())
-        self.assertEqual(len(list(self.root.glob(".*/skills/*/SKILL.md"))), 18)
+        self.assertEqual(len(list(self.root.glob(".*/skills/*/SKILL.md"))), 2 * SKILLS)
         self.assertEqual(sync_skills.generate(self.root, installed=True, check=True), [])
         self.assertTrue((self.root / ".nox-lite/README.md").exists())
         import release_check
@@ -60,7 +64,7 @@ class WorkspaceTests(unittest.TestCase):
         other = Path(self.temporary.name) / "claude-only"
         nox.initialise(other, "claude")
         self.assertFalse((other / ".agents").exists())
-        self.assertEqual(len(list(other.glob(".claude/skills/*/SKILL.md"))), 9)
+        self.assertEqual(len(list(other.glob(".claude/skills/*/SKILL.md"))), SKILLS)
 
     def test_duplicate_keeps_user_direction(self):
         row = self.add("https://example.com/jobs/42?utm_source=feed")
@@ -281,7 +285,7 @@ class InPlaceSetupTests(unittest.TestCase):
             self.assertFalse((root / name).exists(), name)
         self.assertIn("My Nox-Lite workspace", (root / "AGENTS.md").read_text())
         self.assertIn("@.nox-lite/AGENTS.md", (root / "CLAUDE.md").read_text())
-        self.assertEqual(len(list(root.glob(".claude/skills/*/SKILL.md"))), 9)
+        self.assertEqual(len(list(root.glob(".claude/skills/*/SKILL.md"))), SKILLS)
         self.assertEqual(sync_skills.generate(root, installed=True, provider="claude", check=True, source=root / ".nox-lite"), [])
         self.assertTrue(all(x["ok"] for x in nox.doctor(root)["local_checks"]))
 
@@ -311,6 +315,133 @@ class InPlaceSetupTests(unittest.TestCase):
         self.assertIn("Git", result.stderr)
         self.assertTrue((folder / "scripts/nox.py").is_file())
         self.assertFalse((folder / ".nox-lite").exists())
+
+
+class UpdateTests(unittest.TestCase):
+    """Updates replace only toolkit files in .nox-lite/, from a GitHub ZIP, and never touch personal files."""
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="nox-update-")
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name) / "private"
+        nox.initialise(self.root, "claude")
+
+    def release(self, changes=None, remove=()):
+        """A ZIP shaped like GitHub's download of this toolkit, with optional edits."""
+        files = {}
+        for top in (*nox.TOOLKIT_FOLDERS, *nox.TOOLKIT_FILES, "AGENTS.md"):
+            for path in [nox.ROOT / top, *sorted((nox.ROOT / top).rglob("*"))]:
+                relative = path.relative_to(nox.ROOT).as_posix()
+                if path.is_file() and nox.toolkit_path(relative):
+                    files[relative] = path.read_bytes()
+        for relative in remove:
+            del files[relative]
+        files.update(changes or {})
+        target = Path(self.temporary.name) / f"release-{len(list(Path(self.temporary.name).glob('*.zip')))}.zip"
+        with zipfile.ZipFile(target, "w") as archive:
+            archive.writestr("nox-lite-main/", "")
+            archive.writestr("nox-lite-main/.github/workflows/ci.yml", "not part of a workspace")
+            for relative, data in files.items():
+                archive.writestr("nox-lite-main/" + relative, data)
+        return target
+
+    def test_up_to_date_when_nothing_changed(self):
+        result = nox.update(self.root, zip_path=self.release())
+        self.assertFalse(result["update_available"])
+        self.assertEqual(result["changed"] + result["added"] + result["removed"], [])
+        self.assertIn("update_checked_at", nox.read_json(self.root / "workspace.json"))
+
+    def test_check_reports_without_changing_anything(self):
+        writing = self.root / ".nox-lite/docs/writing.md"
+        before = writing.read_bytes()
+        changes = {"docs/writing.md": b"# New guide\n", "workflows/new.md": b"# New\n", "VERSION": b"9.9.9\n"}
+        result = nox.update(self.root, check=True, zip_path=self.release(changes, remove=["docs/scoring.md"]))
+        self.assertTrue(result["update_available"])
+        self.assertEqual(result["changed"], ["VERSION", "docs/writing.md"])
+        self.assertEqual(result["added"], ["workflows/new.md"])
+        self.assertEqual(result["removed"], ["docs/scoring.md"])
+        self.assertEqual(result["latest_version"], "9.9.9")
+        self.assertEqual(writing.read_bytes(), before)
+        self.assertFalse((self.root / ".nox-lite/workflows/new.md").exists())
+        self.assertTrue((self.root / ".nox-lite/docs/scoring.md").exists())
+
+    def test_install_replaces_toolkit_files_and_keeps_personal_ones(self):
+        facts = self.root / "profile/facts.md"
+        facts.write_text("My confirmed facts\n")
+        nox.add_job(self.root, "Example Studio", "Coordinator", "https://example.com/jobs/42")
+        tracker = (self.root / "tracker/jobs.csv").read_bytes()
+        venv = self.root / ".nox-lite/.venv/marker"
+        stale = self.root / ".nox-lite/workflows/old/stale.md"
+        retired = self.root / ".claude/skills/nox-retired/SKILL.md"
+        own = self.root / ".claude/skills/my-own/SKILL.md"
+        for path in (venv, stale, retired, own):
+            path.parent.mkdir(parents=True)
+            path.write_text("kept unless retired\n")
+        old_writing = (self.root / ".nox-lite/docs/writing.md").read_bytes()
+        changes = {"docs/writing.md": b"# New guide\n", "docs/extra/new.md": b"# New\n", "VERSION": b"9.9.9\n"}
+        zip_path = self.release(changes)
+        result = nox.update(self.root, zip_path=zip_path)
+        self.assertTrue(result["updated"])
+        self.assertEqual(result["removed"], ["workflows/old/stale.md"])
+        self.assertEqual((self.root / ".nox-lite/docs/writing.md").read_bytes(), b"# New guide\n")
+        self.assertTrue((self.root / ".nox-lite/docs/extra/new.md").is_file())
+        self.assertFalse(stale.parent.exists())
+        backup = self.root / result["backup"]
+        self.assertEqual((backup / "docs/writing.md").read_bytes(), old_writing)
+        self.assertTrue((backup / "workflows/old/stale.md").is_file())
+        # Personal files, the CV builder and the person's own skills are untouched; retired Nox-Lite skills go.
+        self.assertEqual(facts.read_text(), "My confirmed facts\n")
+        self.assertEqual((self.root / "tracker/jobs.csv").read_bytes(), tracker)
+        self.assertTrue(venv.is_file())
+        self.assertTrue(own.is_file())
+        self.assertFalse(retired.parent.exists())
+        self.assertEqual(result["skills_retired"], [".claude/skills/nox-retired"])
+        self.assertEqual(nox.read_json(self.root / "workspace.json")["toolkit_version"], "9.9.9")
+        self.assertIn("At the workspace root", (self.root / ".nox-lite/AGENTS.md").read_text())
+        self.assertEqual(sync_skills.generate(self.root, installed=True, provider="claude", check=True,
+                                              source=self.root / ".nox-lite"), [])
+        self.assertTrue(all(x["ok"] for x in nox.doctor(self.root)["local_checks"]))
+        self.assertFalse(nox.update(self.root, check=True, zip_path=zip_path)["update_available"])
+
+    def test_cli_check_from_the_workspace(self):
+        result = subprocess.run([sys.executable, ".nox-lite/scripts/nox.py", "update", "--workspace", ".", "--check",
+                                 "--zip", str(self.release())], cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(json.loads(result.stdout)["update_available"])
+
+    def test_refuses_unsafe_or_foreign_downloads(self):
+        def zip_of(entries, link=None):
+            buffer = io.BytesIO()
+            with zipfile.ZipFile(buffer, "w") as archive:
+                for name, data in entries.items():
+                    archive.writestr(name, data)
+                if link:
+                    info = zipfile.ZipInfo(link)
+                    info.external_attr = 0o120777 << 16
+                    archive.writestr(info, "/somewhere/else")
+            return buffer.getvalue()
+        good = {f"nox-lite-main/{name}": "x" for name in ("VERSION", "AGENTS.md", "scripts/nox.py", "workflows/setup.md")}
+        self.assertNotIn("docs/link.md", nox.read_release(zip_of(good, link="nox-lite-main/docs/link.md")))
+        for entries, message in [({**good, "nox-lite-main/../evil.py": "x"}, "Unsafe"),
+                                 ({**good, "/etc/evil": "x"}, "Unsafe"),
+                                 ({**good, "other/README.md": "x"}, "one Nox-Lite folder"),
+                                 ({"nox-lite-main/README.md": "x"}, "look like Nox-Lite")]:
+            with self.assertRaisesRegex(ValueError, message):
+                nox.read_release(zip_of(entries))
+        with self.assertRaisesRegex(ValueError, "not a ZIP"):
+            nox.read_release(b"<html>not found</html>")
+        bad = Path(self.temporary.name) / "bad.zip"
+        bad.write_bytes(zip_of({**good, "nox-lite-main/../evil.py": "x"}))
+        with self.assertRaises(ValueError):
+            nox.update(self.root, zip_path=bad)
+        self.assertNotIn("update_checked_at", nox.read_json(self.root / "workspace.json"))
+
+    def test_download_errors_point_to_the_zip_fallback(self):
+        with patch.object(nox, "urlopen", side_effect=OSError("certificate verify failed")):
+            with self.assertRaisesRegex(ValueError, "--zip"):
+                nox.download()
+        with patch.object(nox, "urlopen", return_value=io.BytesIO(b"x" * 11)):
+            with self.assertRaisesRegex(ValueError, "unexpectedly large"):
+                nox.download(limit=10)
 
 
 class URLTests(unittest.TestCase):
