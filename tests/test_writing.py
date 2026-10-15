@@ -130,6 +130,7 @@ class LetterBuildTests(unittest.TestCase):
                 styles = archive.read("word/styles.xml").decode()
             self.assertIn(cv["name"], document)
             self.assertIn("same-day delivery", document)
+            self.assertEqual(document.count('w:val="dashSmallGap"'), 2)  # same header as the CV
             self.assertNotIn("# Cover letter", document)
             self.assertNotIn("asciiTheme", styles)
             with self.assertRaises(ValueError):
