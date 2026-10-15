@@ -1,12 +1,12 @@
 # CVs and cover letters
 
-Nox-Lite builds clean, single-column Word documents: selectable text, simple headings, bullet lists and clickable links. Hiring systems read them well. It doesn't reuse the person's original Word file, photos or fonts. A4 and US Letter are supported. What to write is covered in [writing](writing.md).
+Nox-Lite builds single-column Word documents in a classic layout: the name centred above one contact line, ruled section headings, each employer on the left with its dates on the right, then the role, a short line of context and bullets. The cover letter uses the same header. The text is selectable and the links are clickable, so hiring systems read them well. It doesn't reuse the person's original Word file, photos or fonts. A4 and US Letter are supported. What to write is covered in [writing](writing.md).
 
 ## Data
 
 The CV lives in each application package as `cv.json`. Start from [the blank template](../templates/cv.json) or [the fictional example](../examples/candidate/cv.json). The assistant maintains the JSON; the person never edits it.
 
-Required: `schema_version: 1`, a name, and experience or education. Contact fields are optional. Each experience needs `organisation`, `role`, `dates` and optional `bullets`; each education entry needs `institution`, `qualification` and `dates`. Links need a label and a public URL. Skills are groups with a `category` and `items`. Year-only dates are fine when that's all that's known; don't invent months.
+Required: `schema_version: 1`, a name, and experience or education. Contact fields are optional. Each experience needs `organisation`, `role` and `dates`, with optional `location`, `description` (one short line, shown in italics) and `bullets`; each education entry needs `institution`, `qualification` and `dates`. Links need a label and a public URL. Skills are groups with a `category` and `items`. Year-only dates are fine when that's all that's known; don't invent months.
 
 The cover letter is plain text in `cover-letter.md`: paragraphs separated by blank lines, starting with the greeting. Headings are ignored.
 
@@ -34,7 +34,7 @@ python3 .nox-lite/scripts/check_writing.py PKG/cv.json PKG/cover-letter.md PKG/a
 
 - Name files after the person, not "CV_final_v3". Use US Letter (`--paper letter`) for the US and Canada, and A4 elsewhere.
 - `--pdf` needs LibreOffice (free, optional). The builder finds it on macOS and Windows automatically. Without it, the .docx is still made, and the person can save it as a PDF from Word, Pages or Google Docs. Never say a PDF exists until it does.
-- Arial is the default font. `--font "Liberation Sans"` is an alternative when installed.
+- The default font is Georgia, a classic serif that every Mac and Windows computer has. Another installed font works too, such as `--font "Times New Roman"`. Check the PDF, because a font that isn't installed is quietly swapped for another.
 - `check_writing.py` runs the checks from [writing](writing.md). Fix every **problem**; check every **warning** (numbers it can't find in the profile or job ad, missing employer name, too many "I" openers).
 
 ## Look at every page

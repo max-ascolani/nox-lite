@@ -14,6 +14,7 @@ How to write CVs, cover letters and form answers that sound like a capable perso
 Build it from `profile/experience.md` with the CV builder (see [documents](documents.md)). Choose what's relevant to this job; keep real titles and dates.
 
 - **Summary:** two or three lines. Who they are, their strongest proof for this role, and what they'd bring. No "results-driven professional".
+- **Context line:** one short line under the role saying what the organisation does or the scope of the job, when that isn't obvious: *"Community workshop network running 40+ sessions a month"*. Store it as the role's `description`.
 - **Bullets:** three to five for recent roles, fewer for older ones. Each under about 150 characters. Start with the result or a strong verb, and include a real number where there is one. *"Cut monthly reporting from five days to one by automating the finance pack"*, not *"Responsible for reporting"*.
 - **Skills:** grouped, using the ad's terms where true.
 - **Length:** one page (about 475–600 words) for under ten years' experience, two pages otherwise. Cut content rather than shrinking the font.

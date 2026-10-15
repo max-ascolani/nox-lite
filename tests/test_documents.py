@@ -81,6 +81,31 @@ class DocumentTests(unittest.TestCase):
                 fonts = target.find(f".//{w}rFonts")
                 self.assertEqual({fonts.get(w + k) for k in ("ascii", "hAnsi", "eastAsia", "cs")}, {font})
 
+    def test_classic_layout(self):
+        from docx import Document
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        path = build_cv.build(self.data, self.root / "cv.docx")
+        doc = Document(path)
+        paragraphs = {p.text: p for p in doc.paragraphs}
+        self.assertEqual(doc.paragraphs[0].alignment, WD_ALIGN_PARAGRAPH.CENTER)
+        self.assertTrue({"PROFILE", "EXPERIENCE", "EDUCATION", "SKILLS"} <= set(paragraphs))
+        employer = paragraphs["Cedar Workshop Collective (fictional), Bristol\t2023–2026"]
+        self.assertEqual(employer.style.name, "Heading 2")
+        self.assertTrue(employer.runs[0].bold)
+        self.assertTrue(paragraphs["Operations Coordinator"].runs[0].bold)
+        self.assertTrue(paragraphs[self.data["experience"][0]["description"]].runs[0].italic)
+        with zipfile.ZipFile(path) as archive:
+            body = archive.read("word/document.xml").decode()
+            styles = archive.read("word/styles.xml").decode()
+        self.assertEqual(body.count('w:val="dashSmallGap"'), 2)  # above and below the contact line
+        self.assertEqual(body.count("<w:bottom "), 1 + 4)  # under the contact line and the four section headings
+        self.assertIn(f'w:ascii="{build_cv.FONT}"', styles)
+
+    def test_description_must_be_text(self):
+        self.data["experience"][0]["description"] = 5
+        with self.assertRaisesRegex(ValueError, "description"):
+            build_cv.validate_cv(self.data)
+
     def test_direct_word_changes_cannot_be_overwritten_accidentally(self):
         path = build_cv.build(self.data, self.root / "cv.docx")
         before = path.read_bytes()
