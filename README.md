@@ -2,7 +2,7 @@
 
 **Your own AI job-search assistant, running on your computer. Free and open source.**
 
-> **AI assistant reading this for someone?** Read [START_HERE.md](START_HERE.md) ([plain text](https://raw.githubusercontent.com/max-ascolani/nox-lite/main/START_HERE.md)) and guide them through setup one step at a time. Assume they have never used coding tools.
+> **AI assistant reading this for someone?** Read [START_HERE.md](START_HERE.md) ([plain text](https://raw.githubusercontent.com/max-ascolani/nox-lite/main/START_HERE.md)) and guide them through setup one step at a time, in everyday words. Assume they have never used coding tools.
 
 Nox-Lite turns Claude or ChatGPT into a job-search assistant that:
 
@@ -23,13 +23,13 @@ You stay in charge. Nothing is sent without your approval, and your information 
   - **ChatGPT**: Plus (US$20/month) recommended. Free and Go accounts can try it, with much tighter usage limits.
 - About 45 minutes for setup. Most of it is spent telling the assistant about your career, which is what makes every later application good.
 
-Nox-Lite itself is free. There's no account, server or API key: it runs on the AI plan you already have.
+Nox-Lite itself is free, with nothing to sign up for: it runs on the AI plan you already have.
 
 ## Get started
 
 1. Open [Claude](https://claude.ai) or [ChatGPT](https://chatgpt.com) in your browser.
 2. Paste this page's link, `https://github.com/max-ascolani/nox-lite`, and say: **"Help me set this up."**
-3. Follow along. The chat helps you install the free desktop app, download this folder and open it there. From then on, the desktop app does the work.
+3. Follow along. The chat helps you install the free desktop app, download Nox-Lite and open it there. From then on, the desktop app does the work. If the chat asks permission to look at Nox-Lite, it's fine to allow it.
 
 If your chat can't open links, download [START_HERE.md](START_HERE.md) and attach it instead.
 
