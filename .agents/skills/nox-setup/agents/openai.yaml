@@ -1,0 +1,6 @@
+interface:
+  display_name: "Set up Nox-Lite"
+  short_description: "Set up or repair your private job-search workspace"
+  default_prompt: "Use $nox-setup to guide me through setup one step at a time."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+.runtime/
+.playwright-mcp/
+build/
+dist/
+.env
+.env.*
+!.env.example
+/workspace/
+/personal/
+~$*

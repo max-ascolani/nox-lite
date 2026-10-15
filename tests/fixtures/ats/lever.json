@@ -1,0 +1,35 @@
+[
+  {
+    "id": "6f1c2a9e-0b3d-4c55-9e1a-2b7d8f0a1c11",
+    "text": "Customer Success Manager",
+    "categories": {"commitment": "Full-time", "department": "Customer", "location": "Berlin", "team": "Success", "allLocations": ["Berlin", "Munich"]},
+    "country": "DE",
+    "workplaceType": "hybrid",
+    "createdAt": 1791793800000,
+    "descriptionPlain": "You will look after a portfolio of customers.",
+    "hostedUrl": "https://jobs.lever.co/sampleco/6f1c2a9e-0b3d-4c55-9e1a-2b7d8f0a1c11",
+    "applyUrl": "https://jobs.lever.co/sampleco/6f1c2a9e-0b3d-4c55-9e1a-2b7d8f0a1c11/apply"
+  },
+  {
+    "id": "8a2d4b6c-1e3f-4a57-8b9c-0d1e2f3a4b22",
+    "text": "Front-End Developer",
+    "categories": {"commitment": "Full-time", "department": "Engineering", "location": "Lisbon", "team": "Web"},
+    "country": "PT",
+    "workplaceType": "remote",
+    "createdAt": 1788264000000,
+    "descriptionPlain": "Build our web app.",
+    "hostedUrl": "https://jobs.lever.co/sampleco/8a2d4b6c-1e3f-4a57-8b9c-0d1e2f3a4b22",
+    "applyUrl": "https://jobs.lever.co/sampleco/8a2d4b6c-1e3f-4a57-8b9c-0d1e2f3a4b22/apply"
+  },
+  {
+    "id": "9c3e5d7f-2a4b-4c68-9d0e-1f2a3b4c5d33",
+    "text": "Marketing Intern",
+    "categories": {"commitment": "Internship", "department": "Marketing", "location": "Berlin", "team": "Brand", "allLocations": ["Berlin"]},
+    "country": "DE",
+    "workplaceType": "onsite",
+    "createdAt": 1791996300000,
+    "descriptionPlain": "Support campaigns.",
+    "hostedUrl": "https://jobs.lever.co/sampleco/9c3e5d7f-2a4b-4c68-9d0e-1f2a3b4c5d33",
+    "applyUrl": "https://jobs.lever.co/sampleco/9c3e5d7f-2a4b-4c68-9d0e-1f2a3b4c5d33/apply"
+  }
+]

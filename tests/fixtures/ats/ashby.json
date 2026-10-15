@@ -1,0 +1,56 @@
+{
+  "apiVersion": "1",
+  "jobs": [
+    {
+      "id": "1b2c3d4e-5f60-4718-9a0b-1c2d3e4f5a66",
+      "title": " Product Designer",
+      "department": "Design",
+      "team": "Product",
+      "employmentType": "FullTime",
+      "location": "New York, NY",
+      "secondaryLocations": [{"location": "Remote (US)", "address": {"postalAddress": {"addressCountry": "USA"}}}],
+      "publishedAt": "2026-10-11T17:12:35.753+00:00",
+      "isListed": true,
+      "isRemote": true,
+      "workplaceType": "Hybrid",
+      "address": {"postalAddress": {"addressRegion": "NY", "addressCountry": "USA", "addressLocality": "New York City"}},
+      "jobUrl": "https://jobs.ashbyhq.com/demoworks/1b2c3d4e-5f60-4718-9a0b-1c2d3e4f5a66",
+      "applyUrl": "https://jobs.ashbyhq.com/demoworks/1b2c3d4e-5f60-4718-9a0b-1c2d3e4f5a66/application",
+      "descriptionPlain": "Design the product."
+    },
+    {
+      "id": "2c3d4e5f-6071-4829-8b1c-2d3e4f5a6b77",
+      "title": "Operations Associate",
+      "department": "Operations",
+      "team": "Ops",
+      "employmentType": "FullTime",
+      "location": "Toronto",
+      "secondaryLocations": [],
+      "publishedAt": "2026-08-20T09:00:00.000+00:00",
+      "isListed": true,
+      "isRemote": true,
+      "workplaceType": "OnSite",
+      "address": {"postalAddress": {"addressCountry": "Canada", "addressLocality": "Toronto"}},
+      "jobUrl": "https://jobs.ashbyhq.com/demoworks/2c3d4e5f-6071-4829-8b1c-2d3e4f5a6b77",
+      "applyUrl": "https://jobs.ashbyhq.com/demoworks/2c3d4e5f-6071-4829-8b1c-2d3e4f5a6b77/application",
+      "descriptionPlain": "Keep things running."
+    },
+    {
+      "id": "3d4e5f60-7182-493a-9c2d-3e4f5a6b7c88",
+      "title": "Hidden Product Designer",
+      "department": "Design",
+      "team": "Product",
+      "employmentType": "FullTime",
+      "location": "Remote",
+      "secondaryLocations": [],
+      "publishedAt": "2026-10-12T09:00:00.000+00:00",
+      "isListed": false,
+      "isRemote": true,
+      "workplaceType": "Remote",
+      "address": null,
+      "jobUrl": "https://jobs.ashbyhq.com/demoworks/3d4e5f60-7182-493a-9c2d-3e4f5a6b7c88",
+      "applyUrl": "https://jobs.ashbyhq.com/demoworks/3d4e5f60-7182-493a-9c2d-3e4f5a6b7c88/application",
+      "descriptionPlain": "Not listed publicly."
+    }
+  ]
+}

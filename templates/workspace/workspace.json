@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "toolkit_version": "0.1.0",
+  "provider": "both",
+  "created_at": null,
+  "locale": {"country": null, "timezone": null, "language": "en", "paper": "a4", "currency": null},
+  "tracker": {"backend": "local", "path": "tracker/jobs.csv", "sheet_url": "", "tab": "Jobs"},
+  "email": {"mode": "manual", "confirmed_at": null, "user_reference": null},
+  "search": {"active": true, "mode": "focused", "first_batch": 5, "max_new_jobs": 25},
+  "consent": {"optional_marketing": "decline", "required_processing": "ask", "confirmed_at": null},
+  "scheduling": {"enabled": false, "platform_id": null}
+}

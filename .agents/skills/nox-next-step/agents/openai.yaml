@@ -1,0 +1,6 @@
+interface:
+  display_name: "What should I do next"
+  short_description: "Choose a useful next step or finish your search"
+  default_prompt: "Use $nox-next-step to review my progress and recommend the next useful action."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Check application messages"
+  short_description: "Handle verification or reconcile hiring outcomes"
+  default_prompt: "Use $nox-email to help with application messages within my email preferences."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; form-action 'none'; object-src 'none'; base-uri 'none'">
+  <title>Nox-Lite · Practice application</title>
+  <link rel="stylesheet" href="practice.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script src="practice.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><span class="wordmark">NOX-LITE</span><span class="badge">LOCAL PRACTICE</span></header>
+    <h1>Try a first application.<br>Nothing gets sent.</h1>
+    <p class="intro">A fictional form to check browser reading, filling and file selection before using a real employer's website.</p>
+    <div class="layout">
+      <section aria-labelledby="form-title" class="card">
+        <h2 id="form-title">Operations Coordinator</h2>
+        <p class="muted">Example Studio · Fictional vacancy #42</p>
+        <form id="application">
+          <label for="candidate">Full name <span>(required)</span></label>
+          <input id="candidate" name="candidate" autocomplete="off" placeholder="Jordan Rivera" required>
+          <label for="email">Email <span>(required)</span></label>
+          <input id="email" name="email" type="email" autocomplete="off" placeholder="candidate@example.com" required>
+          <label for="cv">Dummy CV file <span>(required)</span></label>
+          <input id="cv" name="cv" type="file" required aria-describedby="file-status">
+          <p id="file-status" class="helper">Choose dummy-cv.txt from this folder. Only the filename is displayed; file contents are not read or uploaded.</p>
+          <label for="motivation">Why this role?</label>
+          <textarea id="motivation" name="motivation" rows="3" maxlength="600" placeholder="A fictional answer for the practice form."></textarea>
+          <div id="new-question" hidden>
+            <label for="travel">Can you travel overnight twice a month? <span>(new required question)</span></label>
+            <select id="travel" name="travel"><option value="">Choose after discussing it</option><option value="yes">Yes</option><option value="no">No</option></select>
+            <p class="helper">This is a new commitment. Stop and get the candidate's decision before continuing.</p>
+          </div>
+          <label class="check"><input id="marketing" type="checkbox" name="marketing"> Contact me about future vacancies <span>(optional)</span></label>
+          <button id="submit" type="submit">Try mock submission</button>
+        </form>
+        <div id="result" role="status" aria-live="polite" hidden></div>
+      </section>
+      <aside>
+        <h2>Choose an outcome</h2>
+        <label for="scenario" class="sr-only">Practice scenario</label>
+        <select id="scenario">
+          <option value="success">Success</option>
+          <option value="validation">Validation error</option>
+          <option value="uncertain">Uncertain outcome</option>
+          <option value="question">New required question</option>
+        </select>
+        <p>Ask your assistant to inspect the form, use fictional information, verify the selected filename and describe the observed outcome.</p>
+        <ol><li>Read before filling.</li><li>Check every field and consent.</li><li>Look for an actual receipt.</li><li>Pause when a new decision is needed.</li></ol>
+        <p class="note">This tests a local page. It does not establish that Chrome extensions, email, Sheets or real application websites are connected.</p>
+        <button id="reset" type="button" class="secondary">Reset practice</button>
+      </aside>
+    </div>
+    <footer>Local only · No analytics · No saved form data · No employer endpoint</footer>
+  </main>
+</body>
+</html>

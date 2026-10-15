@@ -1,0 +1,6 @@
+interface:
+  display_name: "Schedule my job search"
+  short_description: "Set up, inspect or pause recurring job-search work"
+  default_prompt: "Use $nox-schedule to help me set up a recurring search after testing it once."
+policy:
+  allow_implicit_invocation: true

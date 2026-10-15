@@ -1,0 +1,6 @@
+interface:
+  display_name: "Find suitable jobs"
+  short_description: "Find a small shortlist or a larger batch of jobs"
+  default_prompt: "Use $nox-find-jobs to find verified jobs that suit me, using my saved search target."
+policy:
+  allow_implicit_invocation: true

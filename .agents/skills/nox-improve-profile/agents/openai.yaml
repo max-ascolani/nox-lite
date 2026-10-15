@@ -1,0 +1,6 @@
+interface:
+  display_name: "Improve my profile"
+  short_description: "Find gaps and build stronger career evidence"
+  default_prompt: "Use $nox-improve-profile to review my information and ask focused questions to improve it."
+policy:
+  allow_implicit_invocation: true

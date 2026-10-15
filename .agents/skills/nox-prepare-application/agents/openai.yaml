@@ -1,0 +1,6 @@
+interface:
+  display_name: "Prepare applications"
+  short_description: "Prepare one job or a batch, with a shared review"
+  default_prompt: "Use $nox-prepare-application to prepare all the jobs I selected, group missing questions and show me the applications to review."
+policy:
+  allow_implicit_invocation: true

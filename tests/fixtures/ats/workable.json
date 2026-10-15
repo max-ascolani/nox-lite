@@ -1,0 +1,42 @@
+{
+  "name": "Mockhouse Ltd",
+  "description": null,
+  "jobs": [
+    {
+      "title": "Warehouse Supervisor",
+      "shortcode": "AB12CD34EF",
+      "code": null,
+      "employment_type": "Full-time",
+      "telecommuting": false,
+      "department": "Operations",
+      "url": "https://apply.workable.com/j/AB12CD34EF",
+      "shortlink": "https://apply.workable.com/j/AB12CD34EF",
+      "application_url": "https://apply.workable.com/j/AB12CD34EF/apply",
+      "published_on": "2026-10-02",
+      "created_at": "2026-09-28",
+      "country": "Greece",
+      "city": "Athens",
+      "state": "Attica",
+      "experience": "Associate",
+      "locations": [{"country": "Greece", "countryCode": "GR", "city": "Athens", "region": "Attica", "hidden": false}]
+    },
+    {
+      "title": "Senior Data Engineer",
+      "shortcode": "GH56IJ78KL",
+      "code": null,
+      "employment_type": "Full-time",
+      "telecommuting": true,
+      "department": "Engineering",
+      "url": "https://apply.workable.com/j/GH56IJ78KL",
+      "shortlink": "https://apply.workable.com/j/GH56IJ78KL",
+      "application_url": "https://apply.workable.com/j/GH56IJ78KL/apply",
+      "published_on": null,
+      "created_at": null,
+      "country": "Portugal",
+      "city": "",
+      "state": "",
+      "experience": "Mid-Senior level",
+      "locations": []
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+# Nox-Lite
+
+@AGENTS.md

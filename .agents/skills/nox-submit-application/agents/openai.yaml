@@ -1,0 +1,6 @@
+interface:
+  display_name: "Submit approved applications"
+  short_description: "Submit a reviewed batch and resume unfinished jobs"
+  default_prompt: "Use $nox-submit-application to submit the reviewed applications covered by my approval, and report each result or blocker."
+policy:
+  allow_implicit_invocation: true

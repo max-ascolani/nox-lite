@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "name": "Jordan Rivera",
+  "location": "Bristol, UK",
+  "email": "jordan@example.com",
+  "phone": "",
+  "links": [{"label": "Selected work", "url": "https://example.com/jordan"}],
+  "summary": "Operations coordinator with experience organising community workshops and supporting a busy service team. Turns scattered requests into clear schedules, practical instructions and reliable handovers. Comfortable learning new tools and asking the questions needed to keep work moving.",
+  "experience": [
+    {
+      "organisation": "Cedar Workshop Collective (fictional)",
+      "role": "Operations Coordinator",
+      "location": "Bristol",
+      "dates": "2023–2026",
+      "bullets": [
+        "Coordinated bookings, materials and volunteer rotas for a weekly programme of community workshops.",
+        "Created a shared booking checklist and handover notes so colleagues could see outstanding tasks and take over cover shifts.",
+        "Worked with facilitators to identify access requirements and resolve changes before sessions.",
+        "Helped two new volunteers learn the booking process; responsibility covered task guidance rather than line management."
+      ]
+    },
+    {
+      "organisation": "Northbank Repair Studio (fictional)",
+      "role": "Customer Support Assistant",
+      "location": "Bristol",
+      "dates": "2021–2023",
+      "bullets": [
+        "Handled customer enquiries, recorded repair requirements and kept customers informed when plans changed.",
+        "Maintained a shared spreadsheet of open requests and prepared clear handovers between shifts.",
+        "Collected recurring questions and drafted a short reference guide for the team."
+      ]
+    }
+  ],
+  "education": [
+    {"institution": "Westhaven College (fictional)", "qualification": "Diploma in Business Administration", "dates": "2021", "detail": ""}
+  ],
+  "skills": [
+    {"category": "Coordination", "items": ["Scheduling", "Volunteer onboarding", "Process documentation"]},
+    {"category": "Tools", "items": ["Google Sheets", "Shared calendars", "Customer enquiry systems"]}
+  ]
+}
