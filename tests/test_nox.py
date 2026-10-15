@@ -4,6 +4,7 @@ import copy
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -256,6 +257,60 @@ class WorkspaceTests(unittest.TestCase):
             nox.initialise(fresh, "codex")
         self.assertTrue((fresh / ".nox-lite/docs/tracker.md").is_file())
         self.assertFalse((fresh / ".nox-lite/docs/plans").exists())
+
+
+class InPlaceSetupTests(unittest.TestCase):
+    """Setup turns the downloaded folder into the workspace, so the person never switches folders."""
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="nox-in-place-")
+        self.addCleanup(self.temporary.cleanup)
+
+    def download(self, parent):
+        folder = Path(parent) / "nox-lite-main"
+        shutil.copytree(nox.ROOT, folder, ignore=shutil.ignore_patterns(".git", ".runtime", ".venv", "__pycache__", "plans"))
+        return folder
+
+    def init(self, script, cwd):
+        return subprocess.run([sys.executable, str(script), "init", "--workspace", ".", "--provider", "claude"],
+                              cwd=cwd, capture_output=True, text=True)
+
+    def assert_workspace(self, root):
+        self.assertTrue((root / "workspace.json").is_file())
+        self.assertTrue((root / ".nox-lite/scripts/nox.py").is_file())
+        for name in ("scripts", "workflows", "templates", "START_HERE.md", "README.md", ".agents", "nox-lite-main"):
+            self.assertFalse((root / name).exists(), name)
+        self.assertIn("My Nox-Lite workspace", (root / "AGENTS.md").read_text())
+        self.assertIn("@.nox-lite/AGENTS.md", (root / "CLAUDE.md").read_text())
+        self.assertEqual(len(list(root.glob(".claude/skills/*/SKILL.md"))), 9)
+        self.assertEqual(sync_skills.generate(root, installed=True, provider="claude", check=True, source=root / ".nox-lite"), [])
+        self.assertTrue(all(x["ok"] for x in nox.doctor(root)["local_checks"]))
+
+    def test_converts_the_downloaded_folder_in_place(self):
+        folder = self.download(self.temporary.name)
+        result = self.init("scripts/nox.py", folder)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Carry on setting up here", result.stdout)
+        self.assertNotIn("leftovers", result.stdout)
+        self.assert_workspace(folder)
+        again = self.init(".nox-lite/scripts/nox.py", folder)
+        self.assertNotEqual(again.returncode, 0)
+        self.assertIn("already exists", again.stderr)
+
+    def test_handles_the_extra_folder_windows_unzipping_adds(self):
+        outer = Path(self.temporary.name) / "nox-lite-main"
+        outer.mkdir()
+        self.download(outer)
+        result = self.init("nox-lite-main/scripts/nox.py", outer)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_workspace(outer)
+
+    def test_never_converts_a_git_checkout(self):
+        folder = self.download(self.temporary.name)
+        (folder / ".git").mkdir()
+        result = self.init("scripts/nox.py", folder)
+        self.assertIn("Git", result.stderr)
+        self.assertTrue((folder / "scripts/nox.py").is_file())
+        self.assertFalse((folder / ".nox-lite").exists())
 
 
 class URLTests(unittest.TestCase):

@@ -7,8 +7,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def expected(base, installed=False, provider="both"):
-    catalog = json.loads((ROOT / "skills/catalog.json").read_text(encoding="utf-8"))
+def expected(base, installed=False, provider="both", source=ROOT):
+    catalog = json.loads((Path(source) / "skills/catalog.json").read_text(encoding="utf-8"))
     prefix = "../../../.nox-lite/" if installed else "../../../"
     values = {}
     for platform in ([".agents", ".claude"] if provider == "both" else [".agents" if provider == "codex" else ".claude"]):
@@ -29,9 +29,9 @@ def expected(base, installed=False, provider="both"):
     return values
 
 
-def generate(base=ROOT, installed=False, provider="both", check=False):
+def generate(base=ROOT, installed=False, provider="both", check=False, source=ROOT):
     changed = []
-    for path, text in expected(base, installed, provider).items():
+    for path, text in expected(base, installed, provider, source).items():
         if not path.exists() or path.read_text(encoding="utf-8") != text:
             changed.append(str(path))
             if not check:

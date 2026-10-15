@@ -9,8 +9,7 @@ Checked against OpenAI's documentation on 15 October 2026. Names can change. If 
 1. Install the **ChatGPT desktop app** from the [official app page](https://learn.chatgpt.com/docs/app) and sign in.
 2. Download Nox-Lite from GitHub (**Code → Download ZIP**), unzip it and move the folder into **Documents**.
 3. In the app, open **Projects** and create a new local project. Choose **Add folder** and pick the Nox-Lite folder. Start a new **Codex** chat in that project. It needs to be a local project so Codex can use your files and your browser.
-4. Type **"Set me up with Nox-Lite."** Codex checks Python, creates your private workspace (`Documents/Nox-Lite Workspace`) and asks you to switch to it.
-5. Create another local project for **Nox-Lite Workspace**, start a Codex chat there and say **"Continue setting up."** From now on, always work in this project.
+4. Type **"Set me up with Nox-Lite."** Codex checks your computer, turns this folder into your private job-search folder and carries on with setup in the same chat. From now on, work in this same project.
 
 Codex reads Nox-Lite's `AGENTS.md` and skills from the project's main folder automatically. Ask in plain English, or pick a skill from the skill menu. [Projects guide](https://learn.chatgpt.com/codex/projects).
 

@@ -12,7 +12,7 @@ Change the time zone to yours. The assistant checks for an existing schedule fir
 
 ## Claude desktop app
 
-The assistant guides you through it, or you can do it yourself: in the **Code** tab, open **Routines**, choose **New routine**, then **Local**. Pick the Nox-Lite Workspace folder, paste the prompt above, choose **Weekdays** and a time, and set the permission mode for the task. If the computer was asleep, a missed run catches up once when the app is next open. [Official guide](https://code.claude.com/docs/en/desktop).
+The assistant guides you through it, or you can do it yourself: in the **Code** tab, open **Routines**, choose **New routine**, then **Local**. Pick your Nox-Lite folder, paste the prompt above, choose **Weekdays** and a time, and set the permission mode for the task. If the computer was asleep, a missed run catches up once when the app is next open. [Official guide](https://code.claude.com/docs/en/desktop).
 
 ## ChatGPT desktop app
 

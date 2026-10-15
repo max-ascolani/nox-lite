@@ -15,7 +15,7 @@ Most people setting this up aren't technical, and many have only used AI as a ch
 ## Where are you?
 
 - **In an ordinary chat** (claude.ai, chatgpt.com, a mobile app): you can't install anything or save files. Do **Part A**, then hand over to the desktop app.
-- **In a desktop app or terminal, opened on the downloaded Nox-Lite folder** (you can see `scripts/nox.py` and there is no `workspace.json`): do **Part B**. If you only see another `nox-lite-main` folder (unzipping on Windows often adds one), work inside that one.
+- **In a desktop app or terminal, opened on the downloaded Nox-Lite folder** (you can see `scripts/nox.py` and there is no `workspace.json`): do **Part B**. If you only see another `nox-lite-main` folder (unzipping on Windows often adds one), the files are inside that one.
 - **In their private workspace** (you can see `workspace.json`): follow `.nox-lite/workflows/setup.md`.
 
 ## Part A: get them into the desktop app
@@ -45,36 +45,26 @@ Stop there. Don't start the career interview in an ordinary chat, because nothin
 
 On Linux there's no Claude desktop app: use the terminal route in [setup/claude-code.md](setup/claude-code.md) or the [Codex guide](setup/codex.md).
 
-## Part B: create their private workspace
+## Part B: turn the folder into their private workspace
 
-This part is routine. Keep it to two messages, the start and the folder switch, plus anything that really needs them. Don't ask where to put the folder, and don't narrate each step.
+This part is routine. Send one short message to start, then only what really needs them. Don't narrate each step or write notes to yourself in the chat.
 
-1. **Start.** Send one line, such as *"Hi! I'll do a quick check of your computer, then make your private job-search folder in Documents. If the app asks you to allow a step, that's me setting things up."* If they haven't already heard that setup takes about 45 minutes, mostly chatting about their career, add it.
+1. **Start.** Send one line, such as *"Hi! I'll do a quick check of your computer, then set up this folder to keep your CV, applications and job tracker. It all stays on your computer. If the app asks you to allow a step, that's me setting things up."* If they haven't already heard that setup takes about 45 minutes, mostly chatting about their career, add it.
 2. **Check the computer is ready.** Run `python3 --version` (on Windows, `py -3 --version`). Any version from 3.9 up works.
    - Mac: if a box asks to install the "command line developer tools", tell them it's a free add-on from Apple: click **Install** and wait a few minutes. Then check again.
    - Windows: if Python is missing, explain that Nox-Lite needs one free add-on. Guide them to install Python from <https://www.python.org/downloads/>, ticking **Add python.exe to PATH**. Then restart the desktop app and reopen this folder.
-3. **Create the workspace** at Documents/Nox-Lite Workspace (or wherever they asked for):
+3. **Turn this folder into the workspace.** If the folder is still in Downloads, first ask them to move it to Documents (people often empty Downloads) and open it here again. Then, from the folder that's open, run:
 
    ```sh
-   python3 scripts/nox.py init --workspace "~/Documents/Nox-Lite Workspace" --provider claude
+   python3 scripts/nox.py init --workspace . --provider claude
    ```
 
-   Use `--provider codex` when you are Codex. On Windows, use `py -3` and the real Documents path. The helper refuses to overwrite an existing folder. If one already exists, open it rather than starting again.
-4. **Switch folders, once.** Send this, nearly word for word:
-
-   > Your private job-search folder is ready in Documents. Now open it here, just this once:
-   >
-   > 1. Click **New** at the top left.
-   > 2. Click the folder button just above the message box and choose **Documents → Nox-Lite Workspace**.
-   > 3. Type **"Continue setting up."**
-
-   ChatGPT: replace steps 1 and 2 with: create a new local project for **Documents → Nox-Lite Workspace** and start a Codex chat in it.
-
-   From now on they always open the workspace folder. It holds its own copy of the toolkit in `.nox-lite/`.
+   Use `--provider codex` when you are Codex, and `py -3` on Windows. If Nox-Lite is inside another `nox-lite-main` folder, run `nox-lite-main/scripts/nox.py` instead, still with `--workspace .`. The helper moves Nox-Lite's own files into `.nox-lite/` and adds their private files. It refuses a folder that's already set up.
+4. **Carry straight on, in this chat.** Don't ask them to open another folder or start a new chat. Read the new `AGENTS.md`, then follow `.nox-lite/workflows/setup.md` from its first step. From now on, run helpers as `.nox-lite/scripts/nox.py`. At the end of this sitting, tell them that next time they open this same folder and say "Continue".
 
 ## Rules while guiding
 
 - Use the official links above. If their screen looks different, ask what they see and adapt; don't invent buttons.
 - Don't ask for a CV or personal details until the workspace exists.
 - Don't change unrelated settings on their computer, or switch off safety features to make setup look finished.
-- If they stop, tell them how to resume: open the workspace folder in the desktop app and say "Continue setting up."
+- If they stop, tell them how to resume: open the same Nox-Lite folder in the desktop app and say "Continue setting up."
