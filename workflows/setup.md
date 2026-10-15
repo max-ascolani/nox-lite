@@ -66,22 +66,26 @@ If you have nothing they wrote themselves, ask for two or three short things (em
 
 Before moving on, read back a short summary (who they are, what they want, their top stories, their key answers) and ask for corrections. Record the `profile` and `search` checks.
 
-## 4. First look at real jobs
+## 4. Plan where to look (10 minutes, mostly you working)
 
-Follow [find jobs](find-jobs.md) with a small first batch (`search.first_batch`, usually 5). Ask what they like and dislike about each, and why. Update the preferences and scoring notes. This calibration is worth more than any questionnaire. Record `sources`, `tracker` and `first_search`.
+Where good jobs are advertised depends on the person's field and country, so work it out for them. Follow [plan where to look](find-jobs.md#plan-where-to-look): ask three quick questions, research where their field hires, build their company list and find each company's job board. Show them the plan in a few lines, ask what to add or drop, and record `sources`.
 
-## 5. Connect Chrome and practise (10 minutes)
+## 5. First look at real jobs
+
+Follow [find jobs](find-jobs.md), using the plan, with a small first batch (`search.first_batch`, usually 5). Ask what they like and dislike about each, and why. Update the preferences and scoring notes. This calibration is worth more than any questionnaire. Record `tracker` and `first_search`.
+
+## 6. Connect Chrome and practise (10 minutes)
 
 Follow [Chrome setup](../setup/browser.md). Run the practice form, including a dummy upload. Record `browser` and `upload`.
 
-## 6. Agree how to work
+## 7. Agree how to work
 
 - **Batch size:** explain the normal rhythm: find 20–25 jobs, choose the best, prepare them all, review once, approve once. Save their usual number in `workspace.json` → `search.max_new_jobs` (25 by default).
 - **Email:** explain the three [email choices](../setup/email.md) briefly. Manual is the default and works fine. Record `email`.
 - **Tracker:** the local tracker works now. [Google Sheets](../setup/google-sheets.md) is optional.
 - **Schedule:** offer a [daily search](../setup/schedules.md) only after a manual search worked. Create nothing unless they ask.
 
-## 7. Wrap up
+## 8. Wrap up
 
 Say what's ready (searching, preparing, submitting) and anything still blocked, in one short message. Suggest the next step, usually: *"Shall I find your first 20–25 jobs?"* Save open questions. If they stop here, tell them: open the workspace folder and say "Continue."
 

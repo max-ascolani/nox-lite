@@ -1,8 +1,35 @@
-# My search sources
+# Where I look
 
-Search brief and date:
+Last reviewed:
 
-| Source / URL | Geography and roles | Why relevant | Account required | Last actual check | Method/results | Next action |
-|---|---|---|---|---|---|---|
+## Job sites
 
-Choose a useful small set, including direct employer sources. Add specialist/regional sources during setup. A catalogue entry is a lead, not proof of live vacancies. Record inaccessible sources accurately; use public alternatives without bypassing access controls.
+| Site | Why it fits | Account needed | Last searched | Worth keeping? |
+|---|---|---|---|---|
+
+## Company job boards
+
+Listed in `research/companies.txt` and searched in one go with `ats_search.py`.
+
+- Number of companies:
+
+## Careers sites to check in Chrome
+
+Companies whose job board the search tool can't read.
+
+| Company | Careers page | Last checked |
+|---|---|---|
+
+## Searches to rerun
+
+Search-engine queries that turn up new companies, for example `site:jobs.lever.co "operations manager" London`.
+
+-
+
+## What's working
+
+Which sources gave jobs worth keeping, newest first. Drop a source that has given nothing in three searches.
+
+-
+
+Sites that need an account are searched through the person's own login in Chrome. Never create accounts or get around access controls.

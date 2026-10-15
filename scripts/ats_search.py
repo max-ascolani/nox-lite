@@ -10,10 +10,16 @@ Name each company by its job-board link (a link to one job on the board works to
 or as ats:name, e.g. greenhouse:acme, lever:acme, ashby:acme, recruitee:acme, workable:acme.
 Other careers sites aren't supported; check those by hand.
 
+To find a company's board, give its name or careers-page link to --find-boards. It reads
+the careers page for a board link, or tries likely board names, and can add what it finds
+to your companies file. Name guesses can hit a different company with the same name, so
+check any it flags before adding them.
+
 Examples (run from your workspace folder):
   python3 .nox-lite/scripts/ats_search.py --company https://jobs.lever.co/acme --company greenhouse:example --keywords "product manager,designer"
   python3 .nox-lite/scripts/ats_search.py --companies companies.txt --location "london,remote" --exclude senior,intern,internship --max-age-days 30
   python3 .nox-lite/scripts/ats_search.py --companies companies.txt --tracker tracker/jobs.csv --csv research/leads.csv
+  python3 .nox-lite/scripts/ats_search.py --find-boards Monzo "Octopus Energy" https://example.com/careers --add-to research/companies.txt
 
 These are leads, not verified vacancies: open each link to check it's still live
 before adding it to the tracker.
@@ -30,6 +36,7 @@ from pathlib import Path
 import re
 import sys
 import time
+import unicodedata
 from urllib.error import HTTPError
 from urllib.parse import parse_qsl, quote, unquote, urlsplit
 from urllib.request import Request, urlopen
@@ -295,6 +302,160 @@ def summary(report, csv_path=None):
     return "\n".join(lines + [REMINDER])
 
 
+# Finding a company's board: from a board link, by scanning its careers page, or by guessing from its name.
+SUFFIXES = {"ltd", "limited", "inc", "llc", "llp", "plc", "gmbh", "bv", "nv", "sa", "sas", "ag", "ab", "as", "oy", "spa",
+            "srl", "pty", "corp", "corporation", "co", "company", "group", "holdings", "the", "com"}
+ON_PAGE = re.compile(r"(?:https?:)?//[\w.-]+\.(?:greenhouse\.io|lever\.co|ashbyhq\.com|recruitee\.com|workable\.com)[^\s\"'<>\\)]*", re.I)
+
+
+def fetch_page(url):
+    """GET one public web page, following redirects; returns (final URL, text). Tests replace this function."""
+    with urlopen(Request(url, headers={"User-Agent": UA, "Accept": "text/html"}), timeout=TIMEOUT) as response:
+        return response.geturl(), response.read(3_000_000).decode("utf-8", "replace")
+
+
+def name_words(name):
+    plain = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", " ", plain.replace("&", " and ").replace("'", "")).split()
+
+
+def guesses(name):
+    """Likely board names: 'Octopus Energy Ltd' -> octopusenergy, octopusenergyltd, octopus-energy, octopus."""
+    words = name_words(name)
+    core = [w for w in words if w not in SUFFIXES] or words
+    out = ["".join(core), "".join(words), "-".join(core)] + ([core[0]] if len(core) > 1 and len(core[0]) > 3 else [])
+    return list(dict.fromkeys(g for g in out if g))[:4]
+
+
+def same_name(a, b):
+    """'Octopus Energy' matches 'Octopus Energy Group Ltd'; 'Wise' doesn't match 'Wise Worksite Field Sales'."""
+    a, b = ("".join(w for w in name_words(x) if w not in SUFFIXES) for x in (a, b))
+    return bool(a) and a == b
+
+
+def boards_on_page(final_url, html):
+    keys = []
+    for link in [final_url] + ON_PAGE.findall(html.replace("\\/", "/").replace("&amp;", "&")):
+        try:
+            key = board("https:" + link if link.startswith("//") else link)
+        except BoardError:
+            continue
+        if (key[0], key[1].lower()) not in [(k[0], k[1].lower()) for k in keys]:
+            keys.append(key)
+    return keys
+
+
+def describe(key, fetch):
+    """Check a board exists and summarise it; raises NotFound if it doesn't."""
+    ats, slug, region = key
+    jobs = normalise(ats, slug, fetch_board(ats, slug, region, fetch))
+    name = next((j["company"] for j in jobs if j["company"] and j["company"] != slug), "")
+    return {"board": f"{ats}:{slug}", "name": name, "jobs": len(jobs), "check": "",
+            "examples": [text(j["title"], j["location"]) for j in jobs[:2]], "link": jobs[0]["url"] if jobs else ""}
+
+
+def find_one(entry, fetch, page):
+    result = {"company": entry, "how": "", "tried": [], "boards": [], "problems": []}
+
+    def check(key):
+        try:
+            result["boards"].append(describe(key, fetch))
+        except NotFound:
+            pass
+        except BoardError as exc:
+            result["problems"].append(f"{key[0]}: {exc}")
+        except Exception as exc:
+            result["problems"].append(f"{key[0]}: unexpected reply ({type(exc).__name__})")
+
+    try:
+        keys = [board(entry)]
+        result["how"] = "link"
+    except BoardError:
+        keys = None
+    if keys is None and re.match(r"https?://", entry, re.I):
+        result["how"], keys = "careers page", []
+        try:
+            keys = boards_on_page(*page(entry))
+        except HTTPError as exc:
+            result["problems"].append(f"the careers page refused the request (HTTP {exc.code}); open it in Chrome instead")
+        except (OSError, ValueError) as exc:
+            result["problems"].append(f"couldn't open the careers page ({getattr(exc, 'reason', exc)})")
+    if keys is not None:
+        for key in keys:
+            check(key)
+        return result
+    result["how"] = "name"
+    for guess in guesses(entry):
+        result["tried"].append(guess)
+        for ats in ATS:
+            check((ats, guess, ""))
+        # Empty accounts exist under many common names, so a guess counts only if it has jobs.
+        result["boards"] = [b for b in result["boards"] if b["jobs"]]
+        if result["boards"]:
+            break
+    first = result["tried"][0] if result["tried"] else ""
+    for b in result["boards"]:
+        if b["name"] and not same_name(entry, b["name"]):
+            b["check"] = f"the board is called \"{b['name']}\""
+        elif not b["name"] and b["board"].split(":", 1)[1] != first:
+            b["check"] = "guessed from part of the name"
+    return result
+
+
+def find_boards(entries, fetch=None, page=None):
+    """For each company name, careers-page link or board link, find its public job board."""
+    fetch, page = fetch or fetch_json, page or fetch_page
+    entries = list(dict.fromkeys(e.strip() for e in entries if e.strip()))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
+        return list(pool.map(lambda e: find_one(e, fetch, page), entries))
+
+
+def add_boards(path, results):
+    """Append confirmed boards that aren't in the companies file yet; returns how many were added."""
+    path = Path(path).expanduser()
+    existing = path.read_text(encoding="utf-8-sig") if path.exists() else ""
+    known = set()
+    for entry in read_companies(path) if existing else []:
+        try:
+            ats, slug, _ = board(entry)
+            known.add((ats, slug.lower()))
+        except BoardError:
+            pass
+    lines = []
+    for result in results:
+        for b in result["boards"]:
+            ats, slug = b["board"].split(":", 1)
+            key = (ats, slug.lower())
+            if not b["check"] and key not in known:
+                known.add(key)
+                lines.append(f"{b['board']}  # {result['company'].replace('#', '')}")
+    if lines:
+        atomic_text(path, existing + ("\n" if existing and not existing.endswith("\n") else "") + "\n".join(lines) + "\n")
+    return len(lines)
+
+
+def board_summary(results, added=None, path=None):
+    def line(company, b):
+        found = f"{b['board']}" + (f", board name \"{b['name']}\"" if b["name"] else "") + f", {b['jobs']} open jobs"
+        return f"  {company}: {found}" + (f" (e.g. {'; '.join(b['examples'])})" if b["examples"] else "")
+    sure = [line(r["company"], b) for r in results for b in r["boards"] if not b["check"]]
+    unsure = [line(r["company"], b) + f". Check: {b['check']}" for r in results for b in r["boards"] if b["check"]]
+    missing = [r for r in results if not r["boards"]]
+    out = [f"Found job boards for {sum(1 for r in results if r['boards'])} of {len(results)} companies."]
+    if sure:
+        out += ["Found:"] + sure
+    if unsure:
+        out += ["Check these first: open a job link to confirm it's the right company, then rerun with the board (for example --find-boards lever:name):"] + unsure
+    if missing:
+        out.append("Not found (give a careers-page link instead, or note the careers page in the source plan to check in Chrome):")
+        for r in missing:
+            tried = f" (tried {', '.join(r['tried'])})" if r["tried"] else ""
+            out.append(f"  {r['company']}{tried}" + (f": {'; '.join(r['problems'])}" if r["problems"] else ""))
+    if added is not None:
+        out.append(f"Added {added} new board{'s' if added != 1 else ''} to {path}." if added else f"Nothing new to add to {path}.")
+    return "\n".join(out)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--company", action="append", default=[], help="a job-board link or ats:name; repeat for more companies")
@@ -308,9 +469,23 @@ def main(argv=None):
     parser.add_argument("--include-tracked", action="store_true", help="also show jobs already in the tracker, marked already_tracked")
     parser.add_argument("--json", action="store_true", help="print JSON instead of a table")
     parser.add_argument("--csv", metavar="PATH", help="also save the results to this CSV file")
+    parser.add_argument("--find-boards", nargs="+", metavar="COMPANY", help="instead of searching, find these companies' job boards: names, careers-page links or board links")
+    parser.add_argument("--add-to", metavar="FILE", help="with --find-boards: add the boards found to this companies file, skipping ones already there and ones to check")
     args = parser.parse_args(argv)
     if args.limit < 1 or args.max_age_days is not None and args.max_age_days < 0:
         parser.error("--limit must be at least 1 and --max-age-days can't be negative")
+    if args.add_to and not args.find_boards:
+        parser.error("--add-to only works with --find-boards")
+    if args.find_boards:
+        try:
+            results = find_boards(args.find_boards)
+            added = add_boards(args.add_to, results) if args.add_to else None
+        except (ValueError, OSError) as exc:
+            print(f"Nox-Lite: {exc}", file=sys.stderr)
+            return 1
+        print(json.dumps({"companies": results, "added": added}, indent=2, ensure_ascii=False) if args.json
+              else board_summary(results, added, args.add_to))
+        return 0 if any(r["boards"] for r in results) or not any(r["problems"] for r in results) else 1
     try:
         entries = args.company + (read_companies(args.companies) if args.companies else [])
         if not entries:

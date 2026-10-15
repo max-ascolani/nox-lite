@@ -325,6 +325,106 @@ class ErrorHandlingTests(unittest.TestCase):
                          ["https://careers.example.com/jobs", "https://jobs.ashbyhq.com/demoworks", "greenhouse:missing"])
 
 
+class FindBoardsTests(unittest.TestCase):
+    def setUp(self):
+        patcher = patch.object(ats_search, "RETRY_PAUSE", 0)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def find(self, entries, table=None, pages=None):
+        pages = pages or {}
+
+        def page(url):
+            value = pages.get(url, HTTPError(url, 404, "Not Found", {}, None))
+            if isinstance(value, Exception):
+                raise value
+            return value
+        fake = Fake(routes() if table is None else table)
+        return ats_search.find_boards(entries, fetch=fake, page=page), fake.calls
+
+    def test_name_guesses(self):
+        self.assertEqual(ats_search.guesses("Octopus Energy Ltd"), ["octopusenergy", "octopusenergyltd", "octopus-energy", "octopus"])
+        self.assertEqual(ats_search.guesses("Monzo"), ["monzo"])
+        self.assertEqual(ats_search.guesses("Société Générale"), ["societegenerale", "societe-generale", "societe"])
+        self.assertEqual(ats_search.guesses("Booking.com"), ["booking", "bookingcom"])
+
+    def test_board_names_must_match_exactly(self):
+        self.assertTrue(ats_search.same_name("Octopus Energy", "Octopus Energy Group Ltd"))
+        self.assertTrue(ats_search.same_name("GoCardless", "Go Cardless"))
+        self.assertFalse(ats_search.same_name("Wise", "Wise Worksite Field Sales"))
+
+    def test_empty_boards_count_only_when_given_directly(self):
+        empty = {"name": "Nowhere", "jobs": []}
+        table = {WORKABLE.replace("mockhouse", "nowherestudio"): empty, WORKABLE.replace("mockhouse", "emptyco"): empty}
+        guessed, given = self.find(["Nowhere Studio", "workable:emptyco"], table)[0]
+        self.assertEqual((guessed["boards"], guessed["tried"]), ([], ["nowherestudio", "nowhere-studio", "nowhere"]))
+        self.assertEqual([(b["board"], b["jobs"]) for b in given["boards"]], [("workable:emptyco", 0)])
+
+    def test_full_name_guess_is_trusted_and_search_stops_at_the_first_hit(self):
+        [result], calls = self.find(["Example Labs"])
+        self.assertEqual((result["how"], result["tried"]), ("name", ["examplelabs"]))
+        self.assertEqual([(b["board"], b["name"], b["jobs"], b["check"]) for b in result["boards"]],
+                         [("greenhouse:examplelabs", "Example Labs", 3, "")])
+        self.assertEqual(result["boards"][0]["examples"][0], "Senior Product Manager, London, United Kingdom")
+        self.assertEqual(len(calls), 6)  # five systems, Lever in two regions, for one guess
+
+    def test_weak_guesses_are_flagged(self):
+        [part], _ = self.find(["Demoworks Studio"])
+        self.assertEqual(part["tried"], ["demoworksstudio", "demoworks-studio", "demoworks"])
+        self.assertEqual([(b["board"], b["check"]) for b in part["boards"]], [("ashby:demoworks", "guessed from part of the name")])
+        other = {GH.replace("examplelabs", "northwind"): payload("greenhouse")}
+        [wrong], _ = self.find(["Northwind"], other)
+        self.assertEqual(wrong["boards"][0]["check"], "the board is called \"Example Labs\"")
+        [right], _ = self.find(["Mockhouse"])
+        self.assertEqual((right["boards"][0]["name"], right["boards"][0]["check"]), ("Mockhouse Ltd", ""))
+
+    def test_careers_page_links_and_redirects(self):
+        html = ('<script src="https://boards.greenhouse.io/embed/job_board/js?for=examplelabs&amp;b=x"></script>'
+                '<script>{"jobs":"https:\\/\\/jobs.lever.co\\/sampleco"}</script><a href="https://www.greenhouse.io/">Powered by</a>')
+        pages = {"https://careers.example.com/": ("https://careers.example.com/", html),
+                 "https://example.com/jobs": ("https://jobs.ashbyhq.com/demoworks", "<html></html>"),
+                 "https://blocked.example.com/": HTTPError("https://blocked.example.com/", 403, "Forbidden", {}, None)}
+        page, redirect, blocked = self.find(list(pages), pages=pages)[0]
+        self.assertEqual((page["how"], [b["board"] for b in page["boards"]]), ("careers page", ["greenhouse:examplelabs", "lever:sampleco"]))
+        self.assertEqual([b["board"] for b in redirect["boards"]], ["ashby:demoworks"])
+        self.assertEqual((blocked["boards"], blocked["tried"]), ([], []))
+        self.assertIn("HTTP 403", blocked["problems"][0])
+
+    def test_board_links_are_checked_and_failures_reported(self):
+        results, _ = self.find(["workable:mockhouse", "greenhouse:missing", "Nowhere Studio"], {**routes(), GH.replace("examplelabs", "nowherestudio"): TimeoutError("timed out")})
+        found, missing, unknown = results
+        self.assertEqual((found["how"], found["boards"][0]["board"]), ("link", "workable:mockhouse"))
+        self.assertEqual((missing["boards"], missing["problems"]), ([], []))
+        self.assertEqual(unknown["tried"], ["nowherestudio", "nowhere-studio", "nowhere"])
+        self.assertTrue(any("greenhouse" in p and "15 seconds" in p for p in unknown["problems"]))
+
+    def test_add_boards_skips_known_and_unconfirmed(self):
+        results, _ = self.find(["Example Labs", "lever:sampleco", "Demoworks Studio"])
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "companies.txt"
+            path.write_text("https://job-boards.greenhouse.io/ExampleLabs  # already here", encoding="utf-8")
+            self.assertEqual(ats_search.add_boards(path, results), 1)
+            self.assertEqual(path.read_text(encoding="utf-8").splitlines()[1:], ["lever:sampleco  # lever:sampleco"])
+            self.assertEqual(ats_search.add_boards(path, results), 0)
+            self.assertEqual(ats_search.read_companies(path), ["https://job-boards.greenhouse.io/ExampleLabs", "lever:sampleco"])
+
+    def test_command_line(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "companies.txt"
+            out = io.StringIO()
+            with patch.object(ats_search, "fetch_json", Fake(routes())), contextlib.redirect_stdout(out):
+                code = ats_search.main(["--find-boards", "Example Labs", "Demoworks Studio", "Nowhere Studio", "--add-to", str(path)])
+            self.assertEqual(code, 0)
+            text = out.getvalue()
+            for expected in ("Found job boards for 2 of 3 companies.", "Example Labs: greenhouse:examplelabs, board name \"Example Labs\", 3 open jobs",
+                             "Demoworks Studio: ashby:demoworks", "Check: guessed from part of the name", "Nowhere Studio (tried nowherestudio, nowhere-studio, nowhere)",
+                             f"Added 1 new board to {path}."):
+                self.assertIn(expected, text)
+            self.assertEqual(ats_search.read_companies(path), ["greenhouse:examplelabs"])
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            ats_search.main(["--add-to", "companies.txt"])
+
+
 class FetchTests(unittest.TestCase):
     def test_plain_get_with_user_agent_and_timeout(self):
         seen = {}
