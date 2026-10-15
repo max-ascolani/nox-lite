@@ -8,6 +8,8 @@ If there's no workspace yet, follow [START_HERE](../START_HERE.md).
 
 ## 1. Check the computer (5 minutes)
 
+In the Claude desktop app, if they're asked to allow every file save, suggest **Accept edits** in the mode menu just below the message box. Claude then saves files without asking but still asks before running anything.
+
 Run `python3 .nox-lite/scripts/nox.py doctor --workspace .` and fix what it reports, in plain English:
 
 - **CV builder missing (python-docx):** install it in a private environment. Mac: `python3 -m venv .nox-lite/.venv` then `.nox-lite/.venv/bin/python -m pip install -r .nox-lite/requirements-docs.txt`. Windows: `py -3 -m venv .nox-lite\.venv` then `.nox-lite\.venv\Scripts\python.exe -m pip install -r .nox-lite\requirements-docs.txt`. Use that Python for `build_cv.py` from then on.
