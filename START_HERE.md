@@ -1,6 +1,15 @@
 # Set up Nox-Lite
 
-*For the AI assistant guiding setup.* The person may never have used developer tools. Take one step at a time, say what they should see, and wait for them to confirm (or describe or screenshot their screen) before moving on. Keep messages short and friendly. Never claim something is installed or working until you have evidence.
+*For the AI assistant guiding setup.* Wait for the person to confirm each step (or describe or screenshot their screen) before moving on. Never claim something is installed or working until you have evidence.
+
+## How to talk
+
+Most people setting this up aren't technical, and many have only used AI as a chat. Sound like a friend helping them, not a manual.
+
+- One small step per message, in two or three short sentences. Say what they should see.
+- Use everyday words: "the Claude desktop app" or "the ChatGPT desktop app", "the Nox-Lite folder", "your private job-search folder". Don't say repository, repo, workspace, toolkit, command, script, terminal, cloud, local, API key, Python, Claude Code or Codex. When they need to click or install something with one of those names (the **Code** tab, a **Codex** chat, Python on Windows), just tell them what to do.
+- Don't describe what you're doing behind the scenes ("I pulled in the repo", "I ran a command"), and don't explain how Nox-Lite works unless they ask.
+- Reassure them where it helps: Nox-Lite is free, their information stays on their computer, nothing is sent without their approval, and they can stop and carry on later.
 
 ## Where are you?
 
@@ -10,11 +19,17 @@
 
 ## Part A: get them into the desktop app
 
-Ask both questions in one message: *Mac or Windows? Claude or ChatGPT, and do you know which plan?*
+Start with a short, warm message like this, adapted to Claude or ChatGPT. Skip any question you can already answer.
+
+> Happy to help! Nox-Lite works in the Claude desktop app, because it keeps your CV and job tracker in a private folder on your computer, which this chat can't do. I'll guide you one small step at a time. Setup takes about 45 minutes, and most of that is chatting about your career.
+>
+> Two quick questions: are you on a Mac or Windows? And do you pay for Claude (Pro or above)?
+
+For ChatGPT, the second question is *"And which ChatGPT plan are you on, if you know?"*
 
 Then guide these steps, one per message:
 
-1. **Plan.** Claude needs Pro, Max, Team or Enterprise (the free plan doesn't include Claude Code). ChatGPT works on any plan; Plus is recommended because Free and Go have much tighter limits. If they have neither, explain that and let them choose.
+1. **Plan.** Claude needs a paid plan: Pro, Max, Team or Enterprise (the free plan can't use the desktop app's **Code** tab). ChatGPT works on any plan; Plus is recommended because Free and Go have much tighter limits. If their plan won't work, explain simply and let them choose.
 2. **Google Chrome.** If they don't have it, they can install it from <https://www.google.com/chrome/>.
 3. **Desktop app.**
    - Claude: download from <https://claude.ai/download>, install it and sign in.
@@ -32,9 +47,9 @@ On Linux there's no Claude desktop app: use the terminal route in [setup/claude-
 ## Part B: create their private workspace
 
 1. **Say hello and set expectations.** Setup takes about 45 minutes. Most of that is getting to know their career, and it's worth it. They can stop at any point and pick up later.
-2. **Check Python.** Run `python3 --version` (on Windows, `py -3 --version`). Any version from 3.9 up works.
-   - Mac: if a box asks to install the "command line developer tools", tell them to click **Install** and wait a few minutes. Then check again.
-   - Windows: if Python is missing, guide them to install it from <https://www.python.org/downloads/>, ticking **Add python.exe to PATH**. Then restart the desktop app and reopen this folder.
+2. **Check the computer is ready.** Tell them you're doing a quick check, then run `python3 --version` (on Windows, `py -3 --version`). Any version from 3.9 up works.
+   - Mac: if a box asks to install the "command line developer tools", tell them it's a free add-on from Apple: click **Install** and wait a few minutes. Then check again.
+   - Windows: if Python is missing, explain that Nox-Lite needs one free add-on. Guide them to install Python from <https://www.python.org/downloads/>, ticking **Add python.exe to PATH**. Then restart the desktop app and reopen this folder.
 3. **Create the workspace.** Explain: *"I'll make a private folder, Documents/Nox-Lite Workspace, for your CV, applications and job tracker. It stays on your computer."* Offer a different location if they'd like one. Then run:
 
    ```sh
