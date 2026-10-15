@@ -102,6 +102,24 @@ def company_named(company, lower):
     return any(re.search(r"\b" + re.escape(name) + r"\b", lower) for name in names if name)
 
 
+def cv_layout(data):
+    """Role habits from the writing guide that the layout makes visible."""
+    roles = [r for r in (data.get("experience") or [] if isinstance(data, dict) else []) if isinstance(r, dict)]
+    warnings = []
+    for role in roles:
+        organisation = str(role.get("organisation", ""))
+        bracket = re.search(r"\(([^)]*\s[^)]*)\)", organisation)
+        if bracket:
+            warnings.append(f"\"{organisation}\": move \"{bracket.group(1)}\" into the role's context line (description)")
+        if len(str(role.get("role", ""))) > 60:
+            warnings.append(f"The job title at {organisation} wraps onto two lines; for a promotion, give the latest title "
+                            "and put earlier ones in the context line")
+    located = [bool(str(r.get("location", "")).strip()) for r in roles]
+    if any(located) and not all(located):
+        warnings.append("Some roles have a location and some don't; give each one (or \"Remote\"), or none")
+    return warnings
+
+
 def check(path, company="", workspace=None, package=None, max_words=None):
     text = texts_from(path)
     lower = text.lower()
@@ -112,6 +130,10 @@ def check(path, company="", workspace=None, package=None, max_words=None):
     if "—" in text:
         problems.append(f"Em dash used {text.count(chr(0x2014))} time(s); use a comma, full stop or brackets")
     problems += [f"Banned phrase: \"{p}\"" for p in BANNED if re.search(r"\b" + re.escape(p) + r"\b", lower)]
+    if re.search(r"~\s?\d", text):
+        problems.append("\"~\" before a number; write \"about\" instead")
+    if Path(path).suffix.lower() == ".json":
+        warnings += cv_layout(json.loads(Path(path).read_text(encoding="utf-8")))
     for name in other_companies(workspace, company):
         if re.search(r"\b" + re.escape(name.lower()) + r"\b", lower):
             problems.append(f"Mentions another employer from the tracker: {name}")
