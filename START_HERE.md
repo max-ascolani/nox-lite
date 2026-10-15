@@ -14,7 +14,7 @@ Most people setting this up aren't technical, and many have only used AI as a ch
 ## Where are you?
 
 - **In an ordinary chat** (claude.ai, chatgpt.com, a mobile app): you can't install anything or save files. Do **Part A**, then hand over to the desktop app.
-- **In a desktop app or terminal, opened on the downloaded Nox-Lite folder** (you can see `scripts/nox.py` and there is no `workspace.json`): do **Part B**.
+- **In a desktop app or terminal, opened on the downloaded Nox-Lite folder** (you can see `scripts/nox.py` and there is no `workspace.json`): do **Part B**. If you only see another `nox-lite-main` folder (unzipping on Windows often adds one), work inside that one.
 - **In their private workspace** (you can see `workspace.json`): follow `.nox-lite/workflows/setup.md`.
 
 ## Part A: get them into the desktop app
@@ -32,11 +32,11 @@ Then guide these steps, one per message:
 1. **Plan.** Claude needs a paid plan: Pro, Max, Team or Enterprise (the free plan can't use the desktop app's **Code** tab). ChatGPT works on any plan; Plus is recommended because Free and Go have much tighter limits. If their plan won't work, explain simply and let them choose.
 2. **Google Chrome.** If they don't have it, they can install it from <https://www.google.com/chrome/>.
 3. **Desktop app.**
-   - Claude: download from <https://claude.ai/download>, install it and sign in.
+   - Claude: download from <https://claude.ai/download>, install it and sign in. Open it from **Applications** (Mac) or the **Start** menu (Windows). A Claude window opened from Chrome is the browser version, which can't open folders on their computer.
    - ChatGPT: download the ChatGPT desktop app from <https://learn.chatgpt.com/docs/app>, install it and sign in.
-4. **Download Nox-Lite.** On <https://github.com/max-ascolani/nox-lite>, click the green **Code** button, then **Download ZIP**. Unzip it (Mac: double-click the file; Windows: right-click it, then **Extract All**). Move the unzipped `nox-lite-main` folder into **Documents**.
+4. **Download Nox-Lite.** On <https://github.com/max-ascolani/nox-lite>, click the green **Code** button, then **Download ZIP**. It goes to the **Downloads** folder. Unzip it (Mac: double-click the file; Windows: right-click it, then **Extract All**). Then, in Finder (Mac) or File Explorer (Windows), drag the `nox-lite-main` folder onto **Documents** in the sidebar.
 5. **Open the folder in the desktop app.**
-   - Claude: click the **Code** tab at the top, check **Local** is selected, click **Select folder** and choose `nox-lite-main`.
+   - Claude: click the small `</>` icon at the top left (its label is **Code**). Just above the message box, check it says **Local**, then click **No folder** and choose `nox-lite-main` in Documents. If **Local** is marked "Desktop only", they're in the browser version: open the desktop app instead.
    - ChatGPT: open **Projects**, create a new local project, choose **Add folder**, pick `nox-lite-main`, then start a new Codex chat in that project.
 6. **Hand over.** Tell them to type **"Set me up with Nox-Lite"** in the desktop app. That assistant takes over from here.
 
@@ -58,11 +58,11 @@ On Linux there's no Claude desktop app: use the terminal route in [setup/claude-
 
    Use `--provider codex` when you are Codex. On Windows, use `py -3` and the real Documents path. The helper refuses to overwrite an existing folder. If one already exists, open it rather than starting again.
 4. **Switch folders, once.** This is the only fiddly bit, so be clear:
-   - Claude: start a new session (the **+** or **New session** button), click **Select folder** and choose **Documents → Nox-Lite Workspace**.
+   - Claude: click **New** at the top of the left sidebar, then click the folder button just above the message box (it shows the current folder's name) and choose **Documents → Nox-Lite Workspace**.
    - ChatGPT: create a new local project for **Documents → Nox-Lite Workspace** and start a Codex chat in it.
 
    Then they type **"Continue setting up."** From now on they always open the workspace folder. It holds its own copy of the toolkit in `.nox-lite/`.
-5. **Permission tip for Claude.** In the mode menu next to the send button, **Accept edits** lets Claude save files without asking each time. It still asks before running commands. They can approve Nox-Lite's helper commands as they come up.
+5. **Permission tip for Claude.** In the mode menu just below the message box, **Accept edits** lets Claude save files without asking each time. It still asks before running commands. They can approve Nox-Lite's helper commands as they come up.
 
 ## Rules while guiding
 
