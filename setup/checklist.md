@@ -10,7 +10,7 @@ For the assistant: record each step with `python3 .nox-lite/scripts/nox.py check
 | CV builder | `documents` | A sample CV was built and every page looked right (PDF optional) | Tailored CVs |
 | Your material | `profile` | CVs, LinkedIn and notes are read; experience, stories and answers are filled in; open questions listed | Good applications |
 | Search brief | `search` | Target roles, locations, dealbreakers and companies are confirmed | Finding jobs |
-| Sources | `sources` | A source plan exists, including target companies' career sites | Finding jobs |
+| Sources | `sources` | The person has seen and agreed the plan: job sites for their field and country, and their target companies' job boards or careers pages | Finding jobs |
 | Tracker | `tracker` | Local tracker checked, or a Google Sheet passed a write and read-back test | Keeping track |
 | Browser | `browser` | Chrome opened and read the practice form | Applying |
 | Upload | `upload` | A dummy file was uploaded and the practice outcomes were told apart | Applying |

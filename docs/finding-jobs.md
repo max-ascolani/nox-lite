@@ -13,7 +13,7 @@ Most companies use a recruiting system (an "ATS") with a public job board: Green
 - startup and investor lists in their sector, [Work at a Startup](https://www.workatastartup.com/) and the monthly [Hacker News "Who is hiring?"](https://news.ycombinator.com/submitted?id=whoishiring) thread for tech;
 - companies spotted on LinkedIn, Indeed and other job sites while searching.
 
-**2. Find each company's board.** Open its careers page and follow an "Apply" link. If it lands on `job-boards.greenhouse.io`, `jobs.lever.co`, `jobs.ashbyhq.com`, `apply.workable.com` or `*.recruitee.com`, add that board to the list. If not, note the careers page in `research/source-plan.md` to check by hand.
+**2. Find each company's board.** Give the names or careers-page links to `ats_search.py --find-boards … --add-to research/companies.txt`. It reads each careers page for a board link, or tries likely board names, and adds the boards it's sure of. Check any it flags by opening one job link: a common name can belong to a different company. If a company has no supported board, note its careers page in `research/source-plan.md` to check in Chrome.
 
 **3. Search the boards in one go.**
 
@@ -33,6 +33,25 @@ Use the target titles and their aliases from `profile/preferences.md`. Matching 
 **6. Verify every lead.** A search result is a lead, not a vacancy. Open each posting and check: still open; the location and, for remote jobs, *which countries*; the key requirements; salary if shown; deadline; and that the application form works. Some systems, and many job sites, show closed or reposted jobs as open.
 
 **7. Be strict.** Score each job with [scoring](scoring.md), drop anything with a dealbreaker, and keep only good fits. In Nox, no application below a strong fit ever led to an interview. Twenty great applications beat a hundred weak ones.
+
+## Where jobs are advertised
+
+It depends on the field and the country, so work it out for each person and check it with a real search. A rough guide:
+
+| Field | Where most jobs are | How to search |
+|---|---|---|
+| Tech, startups, scale-ups, many modern companies | The company's own board on Greenhouse, Lever, Ashby, Workable or Recruitee | Company list with `ats_search.py`; startup boards to find more companies |
+| Large corporates, banks, retailers | Their own careers sites (often Workday, SuccessFactors, Taleo or iCIMS) | Careers pages in Chrome; LinkedIn and Indeed to spot openings |
+| Public sector and government | National and regional government job portals | The portal's own search |
+| Healthcare | The national health service's portal, and hospitals' and care providers' own sites | Portal search plus the main local employers |
+| Teaching and education | National teaching vacancy services, local authority portals, school and university sites | Portal search plus the main local employers |
+| Academia and research | University careers pages and the national academic job board | Board search plus target universities |
+| Charities and nonprofits | Specialist charity and nonprofit boards | Board search |
+| Trades, hospitality, retail, care, driving | Indeed or the national job board, and local employers | Search near where they live; employers' own sites |
+| Creative and design | Studio and agency careers pages, specialist creative boards and communities | Company list plus specialist boards |
+| Remote roles | Company boards and remote job boards | Check which countries each job allows |
+
+In some fields (finance, accounting, nursing, IT contracting) recruitment agencies carry many jobs. Use them only if the person is happy to.
 
 ## How many
 

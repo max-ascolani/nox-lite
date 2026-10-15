@@ -2,7 +2,7 @@
 
 The [source catalogue](catalog.json) is a set of starting leads, not a list to sweep. For the method, see [finding jobs](../docs/finding-jobs.md).
 
-During setup, choose three to six sources that fit the person's country, language, profession and level, and save them in `research/source-plan.md`. Always include company job boards and the career pages of their target companies. Don't assume an English-speaking office job or a US or UK location.
+During setup, [plan where to look](../workflows/find-jobs.md#plan-where-to-look): choose three to six sources that fit the person's country, language, profession and level, and save them in `research/source-plan.md`. Always include their target companies' job boards or careers pages. Don't assume an English-speaking office job or a US or UK location.
 
 | Need | Starting points |
 |---|---|
