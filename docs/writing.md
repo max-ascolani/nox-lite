@@ -14,10 +14,12 @@ How to write CVs, cover letters and form answers that sound like a capable perso
 Build it from `profile/experience.md` with the CV builder (see [documents](documents.md)). Choose what's relevant to this job; keep real titles and dates.
 
 - **Summary:** two or three lines. Who they are, their strongest proof for this role, and what they'd bring. No "results-driven professional".
-- **Context line:** one short line under the role saying what the organisation does or the scope of the job, when that isn't obvious: *"Community workshop network running 40+ sessions a month"*. Store it as the role's `description`.
+- **Context line:** one short line under the role saying what the organisation does or the scope of the job, when that isn't obvious: *"Community workshop network running 40+ sessions a month"*. Store it as the role's `description`, not in brackets after the organisation's name.
+- **Promotions:** give the latest title as the role and the earlier ones in the context line: *"Joined as Support Assistant in 2019; promoted in 2021"*. Use separate entries only when the jobs were different enough to need their own bullets.
 - **Bullets:** three to five for recent roles, fewer for older ones. Each under about 150 characters. Start with the result or a strong verb, and include a real number where there is one. *"Cut monthly reporting from five days to one by automating the finance pack"*, not *"Responsible for reporting"*.
 - **Skills:** grouped, using the ad's terms where true.
-- **Length:** one page (about 475–600 words) for under ten years' experience, two pages otherwise. Cut content rather than shrinking the font.
+- **Consistent details:** a location for every role (or "Remote"), or for none; one date style; plain numbers ("about 60%", not "~60%").
+- **Length:** two pages at most. Fill the first page, and use a second only for strong, relevant material, never padding (a full page is about 475–600 words). Keep to one page if the person prefers it or the employer asks. Cut content rather than shrinking the font.
 - **Leave out:** photo, date of birth, marital status, full address (city and country is enough), and "references available on request".
 
 ## The cover letter

@@ -108,6 +108,21 @@ class WritingCheckTests(unittest.TestCase):
         problems = check_writing.check(path)["problems"]
         self.assertEqual(problems, ["Banned phrase: \"results-driven\""])
 
+    def test_cv_role_habits(self):
+        cv = nox.read_json(nox.ROOT / "examples/candidate/cv.json")
+        self.assertEqual(check_writing.check(self.write("clean.json", json.dumps(cv)))["warnings"], [])
+        first, second = cv["experience"][:2]
+        first["organisation"] = "Cedar Workshop (community workshop network)"
+        first["role"] = "Senior Operations Coordinator (2023 – 2024); Operations Coordinator (2021 – 2023)"
+        second["location"] = ""
+        first["bullets"][0] = "Raised attendance by ~20% in a year"
+        result = check_writing.check(self.write("cv.json", json.dumps(cv)))
+        self.assertIn("\"~\" before a number; write \"about\" instead", result["problems"])
+        self.assertEqual(len(result["warnings"]), 3, result["warnings"])
+        self.assertIn("community workshop network", result["warnings"][0])
+        self.assertIn("wraps onto two lines", result["warnings"][1])
+        self.assertIn("location", result["warnings"][2])
+
 
 class LetterParagraphTests(unittest.TestCase):
     def test_sign_off_keeps_line_breaks_and_prose_is_joined(self):
