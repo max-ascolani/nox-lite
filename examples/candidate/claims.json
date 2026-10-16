@@ -1,9 +1,0 @@
-{
-  "schema_version": 1,
-  "claims": [
-    {"id":"C001","claim":"Coordinated weekly workshop bookings and volunteer rotas","status":"confirmed","source":"Fictional interview fixture, 2026-10-01","confirmed_at":"2026-10-01","limitations":"No verified annual event count."},
-    {"id":"C002","claim":"Guided two new volunteers through the booking process","status":"confirmed","source":"Fictional interview fixture, 2026-10-01","confirmed_at":"2026-10-01","limitations":"No hiring, performance review or line-management responsibility."},
-    {"id":"C003","claim":"Reduced booking errors by 30%","status":"unconfirmed","source":"Illustrative old CV draft","confirmed_at":null,"limitations":"No baseline, calculation or underlying records; do not use."},
-    {"id":"C004","claim":"Operations role began in January 2023","status":"disputed","source":"Illustrative January note conflicts with an illustrative March note","confirmed_at":null,"limitations":"Year 2023 is confirmed in the fixture; exact month must be resolved or omitted."}
-  ]
-}

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Nox-Lite rebuilds this page from your tracker whenever it changes. Ask your assistant to change anything. -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<meta name="color-scheme" content="light dark">
+<title>Job tracker</title>
+<style>
+:root{--bg:#fff;--side:#f7f7f5;--text:#171717;--muted:#8b8a85;--faint:#bbbab5;--line:#ececea;--soft:#f3f3f1;--sel:#efefed;
+--needs:#d97706;--interview:#7c3aed;--progress:#2563eb;--applied:#059669;--closed:#a8a29e}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--side:#0f0f0e;--text:#f0f0ee;--muted:#8d8c87;--faint:#55544f;--line:#252523;--soft:#1e1e1c;--sel:#232321;
+--needs:#fbbf24;--interview:#a78bfa;--progress:#60a5fa;--applied:#34d399;--closed:#78716c}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.g-needs{--c:var(--needs)}.g-interview{--c:var(--interview)}.g-progress{--c:var(--progress)}.g-applied{--c:var(--applied)}.g-closed{--c:var(--closed)}.g-all{--c:var(--text)}
+.app{display:grid;grid-template-columns:210px 340px minmax(0,1fr);height:100vh}
+.side{background:var(--side);border-right:1px solid var(--line);padding:22px 12px;display:flex;flex-direction:column}
+.brand{font-weight:650;font-size:15px;letter-spacing:-.015em;padding:0 10px 18px}
+.nav{display:flex;align-items:center;gap:10px;width:100%;height:34px;padding:0 10px;border-radius:8px;color:var(--muted);font-size:13.5px}
+.nav i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.nav em{margin-left:auto;font-style:normal;font-variant-numeric:tabular-nums;font-size:12.5px}
+.nav:hover{background:var(--soft)}
+.nav[aria-current=true]{background:var(--sel);color:var(--text);font-weight:600}
+.sep{height:1px;background:var(--line);margin:10px}
+.upd{margin-top:auto;padding:0 10px;font-size:12px;color:var(--faint)}
+.by{padding:6px 10px 0;font-size:11px;white-space:nowrap;color:var(--faint)}.by a{color:inherit;text-decoration:none}.by a:hover{color:var(--muted);text-decoration:underline}
+.list{border-right:1px solid var(--line);overflow:auto}
+.lh{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);padding:22px 20px 12px;z-index:1;border-bottom:1px solid var(--line)}
+.lt{font-weight:650;font-size:15px;letter-spacing:-.015em}
+.sb{display:flex;align-items:center;gap:8px;margin-top:12px;height:34px;padding:0 10px;border-radius:10px;background:var(--soft);color:var(--muted);border:1px solid transparent;cursor:text;transition:border-color .15s,background .15s}
+.sb:focus-within{border-color:var(--faint);background:var(--bg)}
+.sb svg{flex:none}
+.sb input{flex:1;min-width:0;height:100%;border:0;background:none;outline:0;font:inherit;font-size:13.5px;color:var(--text);padding:0}
+.sb input::placeholder{color:var(--muted)}
+.sb input::-webkit-search-cancel-button{display:none}
+.clr{flex:none;width:18px;height:18px;border-radius:50%;background:var(--faint);color:var(--bg);font-size:13px;line-height:18px;text-align:center}
+.k{flex:none;font-family:inherit;font-size:11px;font-weight:600;line-height:18px;min-width:18px;text-align:center;border:1px solid var(--line);border-radius:5px;color:var(--faint)}
+.sb:focus-within .k{display:none}
+.none{padding:56px 20px;text-align:center;color:var(--faint)}
+.none button{display:inline-block;margin-top:10px;color:var(--text);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.item{display:block;width:100%;padding:13px 20px;border-bottom:1px solid var(--line);position:relative}
+.item:hover{background:var(--soft)}
+.item[aria-current=true]{background:var(--sel)}
+.item[aria-current=true]::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+.r1{display:flex;align-items:baseline;gap:8px}
+.r1 b{font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r1 time{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.r2{display:flex;align-items:center;gap:8px;margin-top:2px;color:var(--muted);font-size:13px}
+.r2 span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r2 i{font-style:normal;font-size:11.5px;font-weight:600;color:var(--c)}
+.detail{overflow:auto}
+.pane{max-width:620px;padding:46px 48px 90px}
+.blank{height:100%;display:grid;place-items:center;color:var(--faint)}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);padding:4px 11px;border-radius:999px}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+h2{margin:18px 0 2px;font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.role{font-size:17px;color:var(--muted)}
+.next{margin-top:30px;padding:18px 20px;border-radius:14px;border:1px solid var(--line);display:flex;gap:14px;align-items:flex-start}
+.who{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--soft);color:var(--muted)}
+.who.you{background:var(--c);color:var(--bg)}
+.next small{display:block;font-size:12px;color:var(--muted)}
+.fit{margin-top:30px}
+.fitbar{display:flex;gap:4px;width:180px}
+.fitbar i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.fitbar i.on{background:var(--text)}
+.fit p{margin:10px 0 0;color:var(--muted);font-size:14px}
+.lbl{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;width:180px}
+.lbl b{color:var(--text);font-weight:600}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:16px;margin-top:30px;padding-top:24px;border-top:1px solid var(--line)}
+.facts small{display:block;font-size:12px;color:var(--muted)}
+.btns{display:flex;gap:10px;margin-top:32px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;height:40px;padding:0 18px;border-radius:11px;font-size:14px;font-weight:600;text-decoration:none;color:inherit;background:var(--soft)}
+.btn.primary{background:var(--text);color:var(--bg)}
+.asks{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.asks small{width:100%;font-size:12px;color:var(--muted)}
+.ask{height:32px;padding:0 13px;border-radius:999px;border:1px solid var(--line);font-size:13px}
+.ask:hover{background:var(--soft)}
+.back{display:none}
+.tabs{display:none}
+.toast{position:fixed;left:50%;bottom:64px;transform:translate(-50%,20px);opacity:0;transition:all .25s;background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;z-index:20;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (max-width:1000px){.app{grid-template-columns:190px 300px minmax(0,1fr)}.pane{padding:36px 32px 90px}}
+@media (max-width:760px){
+.app{display:block;height:auto}.side{display:none}.list{border:0}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 16px 12px;position:sticky;top:0;background:var(--bg);z-index:2}
+.tabs .nav{width:auto;flex:none;border-radius:999px;border:1px solid var(--line);height:32px}
+.tabs .nav[aria-current=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.mhead{display:flex;justify-content:space-between;align-items:baseline;padding:22px 16px 12px}
+.mhead b{font-size:22px;letter-spacing:-.025em}.mhead span{font-size:12px;color:var(--faint)}
+.lh{position:static;padding:0 16px 10px;background:none;backdrop-filter:none}.lt,.k{display:none}.sb{margin-top:0;height:38px}.item{padding:13px 16px}
+.detail{position:fixed;inset:0;background:var(--bg);transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);z-index:10}
+body.sheet .detail{transform:none}
+.pane{padding:16px 20px 90px}
+.back{display:inline-flex;align-items:center;height:34px;color:var(--muted);font-size:14px;margin-bottom:12px}
+h2{font-size:26px}}
+@media (min-width:761px){.mhead{display:none}}
+</style>
+</head>
+<body>
+<div class="mhead"><b>Job search</b><span id="upd2"></span></div>
+<div class="tabs" id="tabs"></div>
+<div class="app">
+  <aside class="side"><div class="brand">Job search</div><div id="nav"></div><div class="upd" id="upd" title="Your assistant updates this for you. To change anything, just tell it in your chat."></div><div class="by"><a href="https://github.com/max-ascolani/nox-lite" target="_blank" rel="noopener noreferrer">Nox-Lite</a> · by <a href="https://maxasco.com/" target="_blank" rel="noopener noreferrer">Max Ascolani</a></div></aside>
+  <section class="list"><div class="lh" id="lh"><div class="lt" id="lt"></div><label class="sb"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search" aria-label="Search jobs" autocomplete="off" spellcheck="false"><button class="clr" id="clr" type="button" aria-label="Clear search" hidden>×</button><kbd class="k" title="Press / to search">/</kbd></label></div><div id="items"></div></section>
+  <section class="detail" id="detail"></section>
+</div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const D=JSON.parse(document.getElementById('data').textContent);
+const ORDER=[['needs','Needs you'],['interview','Interviews'],['progress','In progress'],['applied','Applied'],['closed','Closed']];
+function h(t,a,...c){const e=document.createElement(t);for(const k in a||{}){const v=a[k];if(v==null||v===false)continue;
+if(k==='class')e.className=v;else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),v);
+else if(k==='href'){if(/^(https?:\/\/|\.\.\/)/i.test(v))e.setAttribute('href',v)}else e.setAttribute(k,v===true?'':v)}
+for(const x of c.flat(9)){if(x==null||x===false||x==='')continue;e.append(x.nodeType?x:document.createTextNode(x))}return e}
+function asks(j){const n=`${j.company} ${j.role}`;
+if(j.stage==='discovered'&&!j.decision)return[['Prepare it',`Prepare the ${n} application`],['Skip it',`Skip the ${n} job`]];
+if(j.stage==='ready_for_review')return[['Show me it',`Show me the ${n} application`]];
+if(j.stage==='verification_needed')return[['I’ve signed in',`I've signed in for ${n}. Please carry on`]];
+if(j.stage==='interview')return[['Help me prepare',`Help me prepare for my ${n} interview`]];
+if(j.decision==='hold')return[['Prepare it now',`Prepare the ${n} application`]];return[]}
+function copy(text){const done=()=>toast('Copied. Paste it into your chat.');
+if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(done,()=>legacy(text,done));else legacy(text,done)}
+function legacy(text,done){const t=h('textarea',{},text);t.style.cssText='position:fixed;opacity:0';document.body.append(t);t.select();try{document.execCommand('copy');done()}catch(e){}t.remove()}
+function toast(m){let t=document.querySelector('.toast');if(!t)t=h('div',{class:'toast',role:'status'});(document.querySelector('dialog[open]')||document.body).append(t)
+t.textContent=m;t.classList.add('show');clearTimeout(t.timer);t.timer=setTimeout(()=>t.classList.remove('show'),2200)}
+
+document.getElementById('upd').textContent='Updated '+D.updated;document.getElementById('upd2').textContent=D.updated;
+const count=g=>g==='all'?D.jobs.length:D.jobs.filter(j=>j.group===g).length;
+const mobile=matchMedia('(max-width:760px)');
+let sec=count('needs')||!D.jobs.length?'needs':'all',cur=null,q=[];
+const words=s=>s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+D.jobs.forEach(j=>j.words=words([j.company,j.role,j.label,j.location].join(' ')));
+const match=j=>q.every(w=>j.words.some(x=>x.startsWith(w)));
+const nav=document.getElementById('nav'),tabs=document.getElementById('tabs'),items=document.getElementById('items'),detail=document.getElementById('detail');
+const lh=document.getElementById('lh'),lt=document.getElementById('lt'),qi=document.getElementById('q'),clr=document.getElementById('clr');
+const NAMES=[...ORDER,['all','All jobs']];
+function navBtn(g,n){return h('button',{class:`nav g-${g}`,'aria-current':String(g===sec),onclick:()=>{sec=g;cur=null;render()}},g==='all'?null:h('i'),n,h('em',{},String(count(g))))}
+function render(){tabs.hidden=nav.hidden=lh.hidden=!D.jobs.length;
+nav.replaceChildren(...ORDER.filter(([g])=>count(g)||g==='needs').map(([g,n])=>navBtn(g,n)),h('div',{class:'sep'}),navBtn('all','All jobs'));
+tabs.replaceChildren(...NAMES.filter(([g])=>count(g)||g==='needs').map(([g,n])=>navBtn(g,n)));
+const js=D.jobs.filter(j=>(sec==='all'||j.group===sec)&&match(j));
+if(!mobile.matches&&!js.includes(cur))cur=js[0]||null;
+lt.textContent=NAMES.find(x=>x[0]===sec)[1];
+const elsewhere=q.length&&sec!=='all'?D.jobs.filter(match).length:0;
+items.replaceChildren(
+...(js.length?js.map(j=>h('button',{class:`item g-${j.group}`,'aria-current':String(j===cur),onclick:()=>{cur=j;render();if(mobile.matches)document.body.classList.add('sheet')}},
+h('div',{class:'r1'},h('b',{},j.company),h('time',{},j.when)),h('div',{class:'r2'},h('span',{},j.role),h('i',{},j.short)))):
+[h('div',{class:'none'},!D.jobs.length?'No jobs yet. Ask your assistant to find some.':q.length?'No matches':'Nothing here right now.',
+elsewhere?h('div',{},h('button',{onclick:()=>{sec='all';render();qi.focus()}},`${elsewhere} ${elsewhere===1?'match':'matches'} in All jobs`)):null)]));
+showDetail(js.length)}
+function showDetail(any){const j=cur;
+if(!j){detail.replaceChildren(h('div',{class:'blank'},any?'Pick a job':''));return}
+const a=asks(j);const facts=[['Location',j.location],['Salary',j.salary],['Applied',j.applied],['Last checked',j.checked]].filter(f=>f[1]);
+const you=j.who==='You';
+detail.replaceChildren(h('div',{class:`pane g-${j.group}`},
+h('button',{class:'back',onclick:()=>document.body.classList.remove('sheet')},'‹ Back'),
+h('span',{class:'status'},h('i'),j.label),h('h2',{},j.company),h('div',{class:'role'},j.role),
+j.next?h('div',{class:'next'},h('span',{class:'who'+(you?' you':''),'aria-hidden':'true'},you?'You':'AI'),h('div',{},h('small',{},you?'Your next step':'Your assistant is on it'),j.next)):null,
+j.score||j.reason?h('div',{class:'fit'},j.score?[h('div',{class:'lbl'},'Fit',h('b',{},`${j.score}/5`)),h('div',{class:'fitbar'},[0,1,2,3,4].map(i=>h('i',{class:i<j.score?'on':null})))]:h('div',{class:'lbl'},'Why it fits'),j.reason?h('p',{},j.reason):null):null,
+facts.length?h('div',{class:'facts'},facts.map(([k,v])=>h('div',{},h('small',{},k),v))):null,
+h('div',{class:'btns'},j.url?h('a',{class:'btn primary',href:j.url,target:'_blank',rel:'noopener noreferrer'},'Open job ad ↗'):null,j.package?h('a',{class:'btn',href:j.package},'Application folder'):null),
+a.length?h('div',{class:'asks'},h('small',{},'Copy a message for your assistant'),a.map(([l,t])=>h('button',{class:'ask',title:t,onclick:()=>copy(t)},l))):null))}
+mobile.addEventListener('change',()=>{document.body.classList.remove('sheet');render()});
+qi.addEventListener('input',()=>{q=words(qi.value);clr.hidden=!qi.value;render()});
+clr.addEventListener('click',()=>{qi.value='';q=[];clr.hidden=true;render();qi.focus()});
+qi.addEventListener('keydown',e=>{if(e.key==='Escape'&&qi.value){e.stopPropagation();clr.click()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.body.classList.remove('sheet');
+if(e.key==='/'&&document.activeElement!==qi&&!lh.hidden){e.preventDefault();qi.focus()}});
+render();
+</script>
+</body>
+</html>

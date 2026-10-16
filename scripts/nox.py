@@ -12,14 +12,16 @@ import io
 import json
 import os
 from pathlib import Path
+import platform
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 import uuid
+import webbrowser
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -170,8 +172,98 @@ def local_tracker(root, config):
     return inside(root, config["tracker"]["path"])
 
 
-TOOLKIT_FOLDERS = ("workflows", "setup", "docs", "templates", "sources", "scripts", "skills", "examples", "tests")
-TOOLKIT_FILES = ("VERSION", "LICENSE", "requirements-docs.txt", "START_HERE.md", "README.md", "CLAUDE.md", "CONTRIBUTING.md")
+VIEW_FILES = {"page": "Job tracker.html", "excel": "Job tracker.xlsx"}
+
+
+def build_view(root, config, rows):
+    """Write the readable copies chosen in workspace.json; remove one no longer chosen, as it would go stale."""
+    import tracker_view
+    chosen, columns = tracker_view.settings(config["tracker"].get("view"))
+    folder, updated, written = local_tracker(root, config).parent, datetime.now().astimezone(), []
+    for kind, name in VIEW_FILES.items():
+        target = folder / name
+        if kind in tracker_view.FORMATS[chosen["format"]]:
+            atomic_bytes(target, tracker_view.page(rows, columns, updated).encode("utf-8") if kind == "page"
+                         else tracker_view.xlsx(rows, columns, updated))
+            written.append(target.relative_to(root).as_posix())
+        elif target.is_file():
+            target.unlink()
+    return written
+
+
+def refresh_view(root, config, rows=None):
+    """Rebuild the readable copies after a tracker change. They're a convenience, so any problem (such as the
+    file being open in Excel on Windows) is reported and never fails the change itself."""
+    if config["tracker"]["backend"] != "local":
+        return []
+    try:
+        return build_view(root, config, read_rows(local_tracker(root, config)) if rows is None else rows)
+    except Exception as exc:  # noqa: BLE001
+        print(f"Nox-Lite: the tracker was saved, but its readable copy wasn't updated ({exc}). If it's open in Excel, "
+              "close it; it updates with the next change, or run nox.py view.", file=sys.stderr)
+        return []
+
+
+def open_file(path):
+    """Open a file in the person's default app; whether that started."""
+    try:
+        if os.name == "nt":
+            os.startfile(str(path))
+            return True
+        command = ["open" if sys.platform == "darwin" else "xdg-open", str(path)]
+        return subprocess.run(command, capture_output=True, timeout=30).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+def view(path, fmt=None, detail=None, add=(), drop=(), show=False):
+    """Rebuild the readable tracker now, optionally changing what it shows, and open it if asked."""
+    import tracker_view
+    root, config = workspace(path)
+    if config["tracker"]["backend"] != "local":
+        raise ValueError("The tracker is a Google Sheet, so open it in Google Sheets. Readable copies are for the local tracker.")
+    target = local_tracker(root, config)
+    chosen, columns = tracker_view.settings(config["tracker"].get("view"), fmt, detail, add, drop)
+    if (fmt or detail or add or drop) and chosen != config["tracker"].get("view"):
+        config["tracker"]["view"] = chosen
+        write_json(root / "workspace.json", config)
+    with locked(target.with_suffix(".lock")):
+        files = build_view(root, config, read_rows(target))
+    result = {"format": chosen["format"], "detail": "custom" if chosen["columns"] else chosen["detail"],
+              "columns": [tracker_view.COLUMNS[key][0] for key in columns], "files": files}
+    if show:  # the page when there are both: the overview
+        result["opened"] = files[0] if files and open_file(root / files[0]) else None
+    return result
+
+
+ISSUES_URL = "https://github.com/max-ascolani/nox-lite/issues/new"
+
+
+def feedback(path, kind, title, body_file, show=False):
+    """A filled-in GitHub issue for an idea or a problem. The person reads it there and sends it themselves."""
+    root, config = workspace(path)
+    title, body = title.strip(), Path(body_file).expanduser().read_text(encoding="utf-8").strip()
+    if not title or not body:
+        raise ValueError("Give the idea or problem a title and a few sentences")
+    prefix = {"idea": "Idea: ", "problem": "Problem: "}[kind]
+    if not title.lower().startswith(prefix.lower()):
+        title = prefix + title
+    app = {"claude": "Claude", "codex": "ChatGPT", "both": "Claude or ChatGPT"}.get(config.get("provider"), "unknown app")
+    system = {"Darwin": "macOS"}.get(platform.system(), platform.system() or "unknown system")
+    body += f"\n\n---\nNox-Lite {(ROOT / 'VERSION').read_text(encoding='utf-8').strip()} · {app} · {system}"
+    url = ISSUES_URL + "?" + urlencode({"title": title, "body": body}, quote_via=quote)
+    if len(url) > 7000:  # GitHub refuses very long links
+        raise ValueError("That's too long for one GitHub link. Shorten it to a few sentences.")
+    result = {"title": title, "url": url}
+    if show:
+        result["opened"] = webbrowser.open(url)
+    return result
+
+
+TOOLKIT_FOLDERS = ("workflows", "setup", "docs", "templates", "sources", "scripts", "skills", "examples")
+TOOLKIT_FILES = ("VERSION", "LICENSE", "requirements-docs.txt", "START_HERE.md", "README.md", "CLAUDE.md")
+# No longer shipped. Still recognised, so an update removes them from older workspaces.
+RETIRED = ("tests", "CONTRIBUTING.md")
 UPDATE_URL = "https://github.com/max-ascolani/nox-lite/archive/refs/heads/main.zip"
 
 
@@ -218,6 +310,7 @@ def initialise(destination, provider):
     for folder in ("inbox", "evidence", "applications", "research", "tracker", ".runtime"):
         (dest / folder).mkdir(exist_ok=True)
     write_rows(dest / "tracker/jobs.csv", [])
+    refresh_view(dest, config, [])
     atomic_text(dest / ".gitignore", "# Personal workspace: do not publish. This is not encryption.\n*\n")
     atomic_text(dest / "AGENTS.md", "# My Nox-Lite workspace\n\n"
                 "Read `workspace.json`, `setup-state.json` and `profile/README.md`. This folder contains private candidate information. "
@@ -257,7 +350,8 @@ def toolkit_path(relative):
     parts = relative.split("/")
     if any(part in {"__pycache__", ".DS_Store", "plans"} for part in parts) or relative.endswith(".pyc"):
         return False
-    return relative in TOOLKIT_FILES or relative == "AGENTS.md" or (len(parts) > 1 and parts[0] in TOOLKIT_FOLDERS)
+    return (relative in (*TOOLKIT_FILES, *RETIRED, "AGENTS.md")
+            or (len(parts) > 1 and parts[0] in (*TOOLKIT_FOLDERS, *RETIRED)))
 
 
 def download(url=UPDATE_URL, limit=20_000_000):
@@ -305,12 +399,12 @@ def update(path, check=False, zip_path=None):
     toolkit = root / ".nox-lite"
     release = read_release(Path(zip_path).expanduser().read_bytes() if zip_path else download())
     installed = {}
-    for folder in TOOLKIT_FOLDERS:
+    for folder in (*TOOLKIT_FOLDERS, *RETIRED):
         for file in (toolkit / folder).rglob("*"):
             relative = file.relative_to(toolkit).as_posix()
             if file.is_file() and not file.is_symlink() and toolkit_path(relative):
                 installed[relative] = file
-    for name in (*TOOLKIT_FILES, "AGENTS.md"):
+    for name in (*TOOLKIT_FILES, *RETIRED, "AGENTS.md"):
         if (toolkit / name).is_file():
             installed[name] = toolkit / name
     added = sorted(set(release) - set(installed))
@@ -362,7 +456,8 @@ def refresh(path):
     skills = sync_skills.generate(root, installed=True, provider=config.get("provider", "both"), source=toolkit)
     config.update(toolkit_version=(toolkit / "VERSION").read_text(encoding="utf-8").strip(), toolkit_updated_at=now())
     write_json(root / "workspace.json", config)
-    return {"toolkit_version": config["toolkit_version"], "skills_written": len(skills), "skills_retired": retired}
+    return {"toolkit_version": config["toolkit_version"], "skills_written": len(skills), "skills_retired": retired,
+            "tracker_view": refresh_view(root, config)}
 
 
 def has_docx(python):
@@ -456,6 +551,7 @@ def add_job(path, company, role, url, location="", fit="", checked_at="", salary
         write_rows(target, rows)
         if read_rows(target)[-1] != row:
             raise ValueError("Tracker readback differs; inspect before retrying")
+        refresh_view(root, config, rows)
     return row
 
 
@@ -499,6 +595,7 @@ def update_job(path, job_id, **changes):
         write_rows(target, rows)
         if [r for r in read_rows(target) if r["job_id"] == job_id] != [row]:
             raise ValueError("Tracker readback differs; inspect before retrying")
+        refresh_view(root, config, rows)
     return row
 
 
@@ -517,6 +614,7 @@ def set_decision(path, job_id, decision):
             raise ValueError("Existing application/uncertain attempt requires reconciliation before new preparation")
         row["decision"] = decision
         write_rows(target, rows)
+        refresh_view(root, config, rows)
     return row
 
 
@@ -541,6 +639,7 @@ def link_package(root, config, canonical, package):
         write_rows(target, rows)
         if [r for r in read_rows(target) if r["job_id"] == row["job_id"]] != [row]:
             raise ValueError("Tracker readback differs; inspect before retrying")
+        refresh_view(root, config, rows)
     return True, ""
 
 
@@ -705,6 +804,15 @@ def main():
     p.add_argument("--workspace", required=True); p.add_argument("--check", action="store_true", help="Only report")
     p.add_argument("--zip", help="Use an already-downloaded ZIP of the GitHub repository")
     p = sub.add_parser("refresh", help="Regenerate installed instructions and skills (run by update)"); p.add_argument("--workspace", required=True)
+    p = sub.add_parser("view", help="Rebuild the readable tracker (page and/or Excel), optionally changing what it shows")
+    p.add_argument("--workspace", required=True); p.add_argument("--format", choices=["page", "excel", "both"])
+    p.add_argument("--detail", choices=["simple", "detailed"], help="Start from this column preset")
+    p.add_argument("--add", action="append", default=[], metavar="COLUMN"); p.add_argument("--drop", action="append", default=[], metavar="COLUMN")
+    p.add_argument("--open", action="store_true", help="Open it in the default app (the page, when there are both)")
+    p = sub.add_parser("feedback", help="Open a filled-in GitHub issue for an idea or problem; the person sends it")
+    p.add_argument("--workspace", required=True); p.add_argument("--kind", choices=["idea", "problem"], required=True)
+    p.add_argument("--title", required=True); p.add_argument("--body-file", required=True)
+    p.add_argument("--open", action="store_true", help="Open it in the browser")
     args = parser.parse_args()
     try:
         if args.command == "init": result = initialise(args.workspace, args.provider)
@@ -719,6 +827,8 @@ def main():
         elif args.command == "attempt": result = create_attempt(args.package)
         elif args.command == "update": result = update(args.workspace, args.check, args.zip)
         elif args.command == "refresh": result = refresh(args.workspace)
+        elif args.command == "view": result = view(args.workspace, args.format, args.detail, args.add, args.drop, args.open)
+        elif args.command == "feedback": result = feedback(args.workspace, args.kind, args.title, args.body_file, args.open)
         elif args.command == "practice":
             from functools import partial
             handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(ROOT / "examples/practice"))
