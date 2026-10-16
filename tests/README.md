@@ -15,6 +15,7 @@ The tests use only the standard library and temporary workspaces. CV and cover-l
 | File | Covers |
 |---|---|
 | test_nox.py | Workspace creation and isolation, updates (personal files kept, unsafe downloads refused), the tracker helpers, duplicate jobs, formula-safe CSV, sealing, changed approvals and interrupted attempts |
+| test_tracker_view.py | The readable tracker page and Excel file: status words, valid files, columns, unsafe job text, and tracker writes that succeed even when the copy can't be written |
 | test_documents.py | CV validation and building, the classic layout, fonts, page sizes, overwrite protection, PDF fallback |
 | test_writing.py | The writing checks (including CV role habits) and the cover-letter builder |
 | test_ats_search.py | Job-board parsing, filters, tracker dedupe and network errors, using the offline fixtures in `fixtures/ats/` |

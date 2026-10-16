@@ -11,7 +11,7 @@ Nox-Lite turns Claude or ChatGPT into a job-search assistant that:
 - **finds fresh jobs every day**, straight from company career sites, 20–25 at a time, and tells you plainly which ones fit and why.
 - **tailors a CV and every form answer** for each job, in your voice, using only true facts.
 - **fills in applications in your own Chrome**, in bulk, after you've reviewed and approved them.
-- **keeps track of everything** in a simple tracker, and helps you prepare for interviews.
+- **keeps track of everything** in a tidy tracker you open in your browser or Excel, and helps you prepare for interviews.
 
 You stay in charge. Nothing is sent without your approval, and your information stays in a private folder on your computer.
 

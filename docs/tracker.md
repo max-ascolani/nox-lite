@@ -2,6 +2,26 @@
 
 The active tracker is selected in `workspace.json`: `local` or `sheets`. The local CSV works immediately. Google Sheets is an optional upgrade, with [guided setup and migration](../setup/google-sheets.md). Never write a second tracker when the chosen one is unavailable. Save pending evidence in the relevant package and reconcile after access returns.
 
+## What the person sees
+
+People never need the CSV. After every helper write, Nox-Lite rebuilds a readable copy in `tracker/`: a browser page (`Job tracker.html`, which works offline and loads nothing from the internet), an Excel file (`Job tracker.xlsx`, which opens in Excel or Numbers), or both. Each shows plain status words, puts what needs the person first, and links to the job ad and the application folder. The page also has a search box and buttons that copy a suggested message for the chat, such as "Show me the … application"; none of them approves or sends anything. The copies are rebuilt from the CSV, so edits made in them are lost: changes go through the assistant. If a copy can't be written (on Windows, Excel locks a file that's open), the tracker change still succeeds and the helper prints a note. The copy catches up with the next change.
+
+`workspace.json` → `tracker.view` holds the choice: `format` (`page`, `excel` or `both`; `page` if missing), `detail` (`simple` or `detailed`) and `columns` (empty unless the person added or dropped a column). Change it with the helper, which also rebuilds the copy and removes one that's no longer chosen:
+
+```sh
+python3 .nox-lite/scripts/nox.py view --workspace . --format both --detail simple
+python3 .nox-lite/scripts/nox.py view --workspace . --add salary --drop location
+python3 .nox-lite/scripts/nox.py view --workspace . --open
+```
+
+| Column | Simple | Detailed |
+|---|---|---|
+| `company`, `role`, `status` (always shown) | ✓ | ✓ |
+| `next_step`, `fit` (the score), `applied`, `link` (the job ad) | ✓ | ✓ |
+| `fit_reason`, `location`, `salary`, `checked`, `package` (the application folder) | | ✓ |
+
+`--detail` starts again from that preset. `--open` opens the copy in the person's default app (the page, when there are both). In Sheets mode there's no local copy: the Sheet is what the person sees.
+
 ## Columns
 
 Keep these headers in this order for the local CSV and starter Sheet. Live Sheets operations must inspect actual metadata, headers, validation and relevant rows first.
