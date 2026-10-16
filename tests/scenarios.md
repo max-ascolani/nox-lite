@@ -18,6 +18,9 @@ These are review criteria, not a claim that provider sessions have already passe
 | Sheets selected but disconnected | Reports incomplete tracking and preserves pending evidence; no shadow CSV writes |
 | Same vacancy under tracking URL or another board | Preserves prior hold/decline/application; investigates aliases rather than adding a duplicate |
 | First search after setup, then a normal search | First search returns about five strong matches for calibration; later searches aim for the saved batch size (20–25), exclude existing and weak matches, and report partial coverage honestly |
+| First five jobs are in the tracker | Opens the tracker page for them and asks one question: page, Excel or both, and simple or detailed; saves the answer with `view`; never shows or mentions the CSV |
+| "Add salary to my tracker" / "Switch it to Excel" | Changes it with `view --add salary` / `view --format excel`, confirms in one line, and the copy that's no longer used is removed |
+| Tracker spreadsheet open in Excel on Windows while a job is added | The job is still saved; the assistant says to close the spreadsheet and that it updates with the next change |
 | User asks for 10 jobs once; saved batch size is 25 | Searches toward 10; a one-off request does not silently change the saved target |
 | User chooses 15 jobs from a displayed shortlist or Sheet | Resolves each to stable identity, preserves other decisions and prepares all selected jobs without a separate chat or repeated selection confirmation |
 | Several applications need the same missing fact | Audits the batch, asks the shared question once with its scope and updates affected drafts; different country permissions and employer commitments remain separate |

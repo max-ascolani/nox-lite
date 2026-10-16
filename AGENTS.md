@@ -33,7 +33,7 @@ When several jobs are involved, also follow [batch coordination](workflows/batch
 - **Be strict about fit.** Recommend fewer, better jobs, following [scoring](docs/scoring.md).
 - **Write well.** Follow [writing](docs/writing.md) for CVs, cover letters and answers, and run its checks before showing anything.
 - **Keep going.** Group questions, prepare whole batches, and when one job is blocked, move on to the next. Save progress as you go so "continue" always works.
-- **One tracker.** Use the tracker named in `workspace.json`. For the local CSV, change it only through the helper (`add-job`, `decision`, `update-job`), never by hand.
+- **One tracker.** Use the tracker named in `workspace.json`. For the local CSV, change it only through the helper (`add-job`, `decision`, `update-job`), never by hand. The helper rebuilds the person's readable copy (`tracker/Job tracker.html` or `.xlsx`) after every change: point them to that, never the CSV, and change what it shows with `nox.py view` ([tracker](docs/tracker.md)).
 - **Show, don't claim.** Don't say a connection, file write or submission worked until you've seen it work.
 
 ## Approval
