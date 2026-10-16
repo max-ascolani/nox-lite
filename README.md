@@ -76,7 +76,7 @@ Nox-Lite distils lessons from building Nox, a job-application product:
 
 ## Made by
 
-Nox-Lite is made by Max Ascolani: [website](https://maxasco.com/) · [LinkedIn](https://www.linkedin.com/in/max-ascolani/) · [X](https://x.com/maxascolani) · [GitHub](https://github.com/max-ascolani). Ideas and problems are welcome: tell your assistant, and it writes them up for you to send.
+Nox-Lite is made by Max Ascolani: [website](https://maxasco.com/) · [LinkedIn](https://www.linkedin.com/in/max-ascolani/) · [X](https://x.com/maxascolani) · [GitHub](https://github.com/max-ascolani). Ideas and problems are welcome: tell your assistant, and it writes them up for you to send on GitHub.
 
 ## More
 
