@@ -28,6 +28,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .nav[aria-current=true]{background:var(--sel);color:var(--text);font-weight:600}
 .sep{height:1px;background:var(--line);margin:10px}
 .upd{margin-top:auto;padding:0 10px;font-size:12px;color:var(--faint)}
+.by{padding:6px 10px 0;font-size:11px;white-space:nowrap;color:var(--faint)}.by a{color:inherit;text-decoration:none}.by a:hover{color:var(--muted);text-decoration:underline}
 .list{border-right:1px solid var(--line);overflow:auto}
 .lh{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);padding:22px 20px 12px;z-index:1;border-bottom:1px solid var(--line)}
 .lt{font-weight:650;font-size:15px;letter-spacing:-.015em}
@@ -104,7 +105,7 @@ h2{font-size:26px}}
 <div class="mhead"><b>Job search</b><span id="upd2"></span></div>
 <div class="tabs" id="tabs"></div>
 <div class="app">
-  <aside class="side"><div class="brand">Job search</div><div id="nav"></div><div class="upd" id="upd" title="Your assistant updates this for you. To change anything, just tell it in your chat."></div></aside>
+  <aside class="side"><div class="brand">Job search</div><div id="nav"></div><div class="upd" id="upd" title="Your assistant updates this for you. To change anything, just tell it in your chat."></div><div class="by"><a href="https://github.com/max-ascolani/nox-lite" target="_blank" rel="noopener noreferrer">Nox-Lite</a> · by <a href="https://maxasco.com/" target="_blank" rel="noopener noreferrer">Max Ascolani</a></div></aside>
   <section class="list"><div class="lh" id="lh"><div class="lt" id="lt"></div><label class="sb"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search" aria-label="Search jobs" autocomplete="off" spellcheck="false"><button class="clr" id="clr" type="button" aria-label="Clear search" hidden>×</button><kbd class="k" title="Press / to search">/</kbd></label></div><div id="items"></div></section>
   <section class="detail" id="detail"></section>
 </div>

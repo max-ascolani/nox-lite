@@ -1,0 +1,6 @@
+interface:
+  display_name: "Send an idea or problem"
+  short_description: "Send an idea or a problem to the Nox-Lite maker"
+  default_prompt: "Use $nox-feedback to help me send this idea or problem to the Nox-Lite maker."
+policy:
+  allow_implicit_invocation: true

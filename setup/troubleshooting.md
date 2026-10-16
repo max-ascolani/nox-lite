@@ -17,6 +17,9 @@ Tell the assistant what you tried and exactly what you saw, leaving out password
 | The application timed out after clicking submit | The assistant keeps it as unconfirmed and checks for a confirmation email or page before doing anything else |
 | You hit a usage limit | Progress is saved. When the limit resets, say "continue" |
 | A scheduled search didn't run | The computer must be awake and the app open. Ask "Why didn't my search run?" |
+| The tracker page or spreadsheet didn't update | If the spreadsheet is open in Excel, close it. It updates with the next change, or say "Update my tracker" |
 | "Tracker is locked" | Another task is writing to it. Wait a moment. Don't run two batches at once in the same workspace |
 
 Don't fix problems by switching off safety settings or giving the assistant access it doesn't need.
+
+Still stuck? Say "Report this problem". The assistant writes it up, without your personal details, for you to send to the maker ([feedback](../workflows/feedback.md)).
