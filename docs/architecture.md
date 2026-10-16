@@ -10,7 +10,7 @@ skills/     ← skill catalogue           inbox/       ← original source mater
 .agents/    ← generated Codex skills    evidence/    ← provenance and unresolved claims
 .claude/    ← generated Claude skills   applications/← review packages and receipts
 setup/      ← connection guides         research/    ← source plan and research
-scripts/    ← local helpers             tracker/     ← local CSV, when selected
+scripts/    ← local helpers             tracker/     ← local CSV + readable page/Excel copy
 templates/  ← blank starting files      .nox-lite/   ← versioned toolkit snapshot
 examples/   ← fictional fixtures        .agents/ or .claude/ ← installed skills
 ```
@@ -27,7 +27,7 @@ The toolkit and a personal workspace both have instructions. Inside a workspace,
 
 `workspace.json` selects the provider, one authoritative tracker, email mode, locale and search state. `setup-state.json` records observed checks and the next step. The profile separates facts, evidence, preferences and reviewed reusable answers. Each claim should carry its source, confirmation date and limitations.
 
-The tracker answers “what is happening with this vacancy?” An application package answers “what did we prepare, approve and send?” A package is evidence, not a second tracker. Its path stays stable after preparation; the actual submission date is recorded in the receipt and tracker.
+The tracker answers “what is happening with this vacancy?” The CSV is the assistant's record; people see a page or spreadsheet rebuilt from it after every helper write, so it can't drift. An application package answers “what did we prepare, approve and send?” A package is evidence, not a second tracker. Its path stays stable after preparation; the actual submission date is recorded in the receipt and tracker.
 
 `research/batches/` holds dated selection notes and preserved review versions linking stable job IDs to package revisions. One human message may authorize all displayed unchanged packages; each package records that message against its own revision. Batch notes cannot override current tracker holds, later instructions or uncertain attempts. These review indices are maintained by the assistant; the helper validates each package's files and records, not batch membership or the authenticity of an approval.
 
