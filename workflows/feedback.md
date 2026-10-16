@@ -7,6 +7,6 @@ Ideas and problems go to Nox-Lite's public GitHub page as an issue, where the ma
 3. **Keep it anonymous.** It will be public. Leave out names, the employers and jobs they applied to, places, salaries, contact details, document contents and screenshots. Describe things in general terms, such as "a Workday form asked for…".
 4. **Show it and ask.** Show the exact title and text, and say it will be public on GitHub. Change anything they want.
 5. **Open it.** Save the text to `.runtime/feedback.md`, then run `python3 .nox-lite/scripts/nox.py feedback --workspace . --kind idea --title "…" --body-file .runtime/feedback.md --open` (`--kind problem` for a problem). It opens GitHub's new-issue page with everything filled in, plus the Nox-Lite version, app and operating system. If it doesn't open, give them the `url` it prints.
-6. **They send it.** They check it and press the green button. GitHub asks them to sign in first; a free account takes a minute, and they create it themselves. If they'd rather not, give them the text to send to Max on [LinkedIn](https://www.linkedin.com/in/max-ascolani/) or [X](https://x.com/maxascolani) instead.
+6. **They send it.** They check it and press the green button. GitHub asks them to sign in first; a free account takes a minute, and they create it themselves. GitHub is the only way to send it: if they'd rather not, leave it there, and don't suggest emailing or messaging Max instead.
 
 Don't press the button for them. Thank them in one line and carry on with what they were doing.
