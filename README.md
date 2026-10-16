@@ -47,12 +47,13 @@ Talk to it like a person. For example:
 | "Search every weekday at 9am" | Sets up a daily search (the desktop app needs to be open) |
 | "What should I do next?" | Picks the most useful next step |
 | "Check for updates" | Gets the latest Nox-Lite if you agree, without touching your information. It also checks about once a week by itself |
+| "I wish it could…" or "Report this problem" | Writes up your idea or problem without your personal details and opens it on GitHub, ready for you to send to the maker |
 
 **Work in batches.** A good rhythm is one search a day, then reviewing 10–20 tailored applications in one sitting and approving them with one message. Your time goes on deciding, not on copying and pasting. See the [batch walkthrough](docs/batch-applications.md).
 
 ## Why it works
 
-Nox-Lite distils lessons from building Nox, a job-application product, and from running a real job search with it:
+Nox-Lite distils lessons from building Nox, a job-application product:
 
 - **Apply on the employer's own site.** Direct applications through company career pages (Greenhouse, Lever, Ashby, Workday and similar) did far better than applying through job boards. Nox-Lite searches those sites and applies there.
 - **Fit beats volume.** A few strong applications beat a hundred weak ones. It's strict about what counts as a good match and explains its reasons.
@@ -73,6 +74,10 @@ Nox-Lite distils lessons from building Nox, a job-application product, and from 
 - Some steps need you: logins, CAPTCHAs, and creating accounts on sites like Workday.
 - No tool can guarantee interviews. Nox-Lite helps you send good applications quickly; the rest is up to the market.
 
+## Made by
+
+Nox-Lite is made by Max Ascolani: [website](https://maxasco.com/) · [LinkedIn](https://www.linkedin.com/in/max-ascolani/) · [X](https://x.com/maxascolani) · [GitHub](https://github.com/max-ascolani). Ideas and problems are welcome: tell your assistant, and it writes them up for you to send.
+
 ## More
 
-[Finding jobs](docs/finding-jobs.md) · [Writing guide](docs/writing.md) · [Application forms](docs/ats-playbook.md) · [Batch walkthrough](docs/batch-applications.md) · [Privacy](docs/privacy.md) · [How it fits together](docs/architecture.md) · [Contributing](CONTRIBUTING.md) · Licence: [MIT](LICENSE)
+[Finding jobs](docs/finding-jobs.md) · [Writing guide](docs/writing.md) · [Application forms](docs/ats-playbook.md) · [Batch walkthrough](docs/batch-applications.md) · [Privacy](docs/privacy.md) · Licence: [MIT](LICENSE)

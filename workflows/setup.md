@@ -93,4 +93,6 @@ Follow [Chrome setup](../setup/browser.md). Run the practice form, including a d
 
 Say what's ready (searching, preparing, submitting) and anything still blocked, in one short message. Suggest the next step, usually: *"Shall I find your first 20–25 jobs?"* Save open questions. If they stop here, tell them: open the workspace folder and say "Continue."
 
+End with one line, once, here and never again: *"Nox-Lite is free, made by Max Ascolani. For updates and tips, follow Max on [LinkedIn](https://www.linkedin.com/in/max-ascolani/) or [X](https://x.com/maxascolani)."*
+
 Throughout: when you can't see their screen, ask what they see; don't invent buttons. Sign-ins happen in the service's own sign-in page. Setup approves nothing: applications, emails, accounts, purchases and schedules each need their own instruction.

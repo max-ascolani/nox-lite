@@ -12,14 +12,16 @@ import io
 import json
 import os
 from pathlib import Path
+import platform
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 import uuid
+import webbrowser
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -234,8 +236,34 @@ def view(path, fmt=None, detail=None, add=(), drop=(), show=False):
     return result
 
 
-TOOLKIT_FOLDERS = ("workflows", "setup", "docs", "templates", "sources", "scripts", "skills", "examples", "tests")
-TOOLKIT_FILES = ("VERSION", "LICENSE", "requirements-docs.txt", "START_HERE.md", "README.md", "CLAUDE.md", "CONTRIBUTING.md")
+ISSUES_URL = "https://github.com/max-ascolani/nox-lite/issues/new"
+
+
+def feedback(path, kind, title, body_file, show=False):
+    """A filled-in GitHub issue for an idea or a problem. The person reads it there and sends it themselves."""
+    root, config = workspace(path)
+    title, body = title.strip(), Path(body_file).expanduser().read_text(encoding="utf-8").strip()
+    if not title or not body:
+        raise ValueError("Give the idea or problem a title and a few sentences")
+    prefix = {"idea": "Idea: ", "problem": "Problem: "}[kind]
+    if not title.lower().startswith(prefix.lower()):
+        title = prefix + title
+    app = {"claude": "Claude", "codex": "ChatGPT", "both": "Claude or ChatGPT"}.get(config.get("provider"), "unknown app")
+    system = {"Darwin": "macOS"}.get(platform.system(), platform.system() or "unknown system")
+    body += f"\n\n---\nNox-Lite {(ROOT / 'VERSION').read_text(encoding='utf-8').strip()} · {app} · {system}"
+    url = ISSUES_URL + "?" + urlencode({"title": title, "body": body}, quote_via=quote)
+    if len(url) > 7000:  # GitHub refuses very long links
+        raise ValueError("That's too long for one GitHub link. Shorten it to a few sentences.")
+    result = {"title": title, "url": url}
+    if show:
+        result["opened"] = webbrowser.open(url)
+    return result
+
+
+TOOLKIT_FOLDERS = ("workflows", "setup", "docs", "templates", "sources", "scripts", "skills", "examples")
+TOOLKIT_FILES = ("VERSION", "LICENSE", "requirements-docs.txt", "START_HERE.md", "README.md", "CLAUDE.md")
+# No longer shipped. Still recognised, so an update removes them from older workspaces.
+RETIRED = ("tests", "CONTRIBUTING.md")
 UPDATE_URL = "https://github.com/max-ascolani/nox-lite/archive/refs/heads/main.zip"
 
 
@@ -322,7 +350,8 @@ def toolkit_path(relative):
     parts = relative.split("/")
     if any(part in {"__pycache__", ".DS_Store", "plans"} for part in parts) or relative.endswith(".pyc"):
         return False
-    return relative in TOOLKIT_FILES or relative == "AGENTS.md" or (len(parts) > 1 and parts[0] in TOOLKIT_FOLDERS)
+    return (relative in (*TOOLKIT_FILES, *RETIRED, "AGENTS.md")
+            or (len(parts) > 1 and parts[0] in (*TOOLKIT_FOLDERS, *RETIRED)))
 
 
 def download(url=UPDATE_URL, limit=20_000_000):
@@ -370,12 +399,12 @@ def update(path, check=False, zip_path=None):
     toolkit = root / ".nox-lite"
     release = read_release(Path(zip_path).expanduser().read_bytes() if zip_path else download())
     installed = {}
-    for folder in TOOLKIT_FOLDERS:
+    for folder in (*TOOLKIT_FOLDERS, *RETIRED):
         for file in (toolkit / folder).rglob("*"):
             relative = file.relative_to(toolkit).as_posix()
             if file.is_file() and not file.is_symlink() and toolkit_path(relative):
                 installed[relative] = file
-    for name in (*TOOLKIT_FILES, "AGENTS.md"):
+    for name in (*TOOLKIT_FILES, *RETIRED, "AGENTS.md"):
         if (toolkit / name).is_file():
             installed[name] = toolkit / name
     added = sorted(set(release) - set(installed))
@@ -780,6 +809,10 @@ def main():
     p.add_argument("--detail", choices=["simple", "detailed"], help="Start from this column preset")
     p.add_argument("--add", action="append", default=[], metavar="COLUMN"); p.add_argument("--drop", action="append", default=[], metavar="COLUMN")
     p.add_argument("--open", action="store_true", help="Open it in the default app (the page, when there are both)")
+    p = sub.add_parser("feedback", help="Open a filled-in GitHub issue for an idea or problem; the person sends it")
+    p.add_argument("--workspace", required=True); p.add_argument("--kind", choices=["idea", "problem"], required=True)
+    p.add_argument("--title", required=True); p.add_argument("--body-file", required=True)
+    p.add_argument("--open", action="store_true", help="Open it in the browser")
     args = parser.parse_args()
     try:
         if args.command == "init": result = initialise(args.workspace, args.provider)
@@ -795,6 +828,7 @@ def main():
         elif args.command == "update": result = update(args.workspace, args.check, args.zip)
         elif args.command == "refresh": result = refresh(args.workspace)
         elif args.command == "view": result = view(args.workspace, args.format, args.detail, args.add, args.drop, args.open)
+        elif args.command == "feedback": result = feedback(args.workspace, args.kind, args.title, args.body_file, args.open)
         elif args.command == "practice":
             from functools import partial
             handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(ROOT / "examples/practice"))
